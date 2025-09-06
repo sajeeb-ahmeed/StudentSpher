@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyDash - Student Results Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes glowing {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hero-3d {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><circle cx="50" cy="50" r="50" fill="url(%23g)"/></svg>') center/200px 200px;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .feature-card {
+            transform: perspective(1000px) rotateY(0deg);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 
+                20px 20px 40px rgba(0,0,0,0.1),
+                -10px -10px 20px rgba(255,255,255,0.7),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+        
+        .feature-card:hover {
+            transform: perspective(1000px) rotateY(10deg) translateY(-10px);
+            box-shadow: 
+                30px 30px 60px rgba(0,0,0,0.15),
+                -15px -15px 30px rgba(255,255,255,0.8),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+        
+        .btn-3d {
+            background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+            box-shadow: 
+                8px 8px 16px rgba(0,0,0,0.2),
+                -4px -4px 8px rgba(255,255,255,0.1),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            transform: perspective(500px) rotateX(0deg);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .btn-3d:hover {
+            transform: perspective(500px) rotateX(-5deg) translateY(-2px);
+            box-shadow: 
+                12px 12px 24px rgba(0,0,0,0.3),
+                -6px -6px 12px rgba(255,255,255,0.1),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            animation: glowing 2s infinite;
+        }
+        
+        .floating-element {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="glass-card fixed top-0 left-0 right-0 z-50 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center floating-element">
+                        <i class="fas fa-graduation-cap text-3xl text-blue-600 mr-2"></i>
+                        <span class="font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">StudyDash</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium shadow-lg transition-all duration-300 hover:shadow-xl">Home</a>
+                    <a href="/leaderboard.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Leaderboard</a>
+                    <a href="/myscores.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">My Scores</a>
+                    <a href="/submit.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Task Submit</a>
+                    <a href="/profile.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Profile</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-3d pt-20 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="fade-in-up">
+                <h1 class="text-6xl md:text-7xl font-bold text-white mb-6">
+                    Welcome to
+                    <span class="bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent">
+                        StudyDash
+                    </span>
+                </h1>
+                <p class="text-2xl text-white/90 max-w-3xl mx-auto mb-12 leading-relaxed">
+                    Your ultimate student performance dashboard. Track scores, compete on leaderboards, and achieve academic excellence.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <a href="/leaderboard.html" class="btn-3d text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
+                        <i class="fas fa-trophy mr-3"></i>
+                        View Leaderboard
+                    </a>
+                    <a href="/myscores.html" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        My Progress
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-5xl font-bold text-gray-900 mb-6">
+                    Powerful Features
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Everything you need to track and improve your academic performance
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card rounded-3xl p-8 fade-in-up">
+                    <div class="bg-gradient-to-br from-blue-500 to-purple-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 floating-element">
+                        <i class="fas fa-trophy text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Leaderboard</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        See how you rank against your peers with real-time leaderboard updates and competitive scoring.
+                    </p>
+                </div>
+
+                <div class="feature-card rounded-3xl p-8 fade-in-up">
+                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 floating-element">
+                        <i class="fas fa-chart-line text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Progress Tracking</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Monitor your academic progress with detailed analytics and performance insights.
+                    </p>
+                </div>
+
+                <div class="feature-card rounded-3xl p-8 fade-in-up">
+                    <div class="bg-gradient-to-br from-orange-500 to-red-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 floating-element">
+                        <i class="fas fa-tasks text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Task Management</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Submit assignments and track your submissions with our intuitive task management system.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

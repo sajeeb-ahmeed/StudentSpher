@@ -48,7 +48,7 @@ app.get('/api/myscores', (req, res) => {
 
 // Serve HTML files
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'leaderboard.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/leaderboard.html', (req, res) => {
@@ -57,6 +57,14 @@ app.get('/leaderboard.html', (req, res) => {
 
 app.get('/myscores.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'myscores.html'));
+});
+
+app.get('/submit.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'submit.html'));
+});
+
+app.get('/profile.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
