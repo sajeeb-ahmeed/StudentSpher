@@ -1,49 +1,267 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Database connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Sample data for demonstration
-const students = [
-  { name: "Alex Johnson", avatar: "https://ui-avatars.com/api/?name=Alex+Johnson&background=3b82f6&color=fff", total_score: 95, total_submissions: 12 },
-  { name: "Sarah Chen", avatar: "https://ui-avatars.com/api/?name=Sarah+Chen&background=10b981&color=fff", total_score: 92, total_submissions: 11 },
-  { name: "Michael Rodriguez", avatar: "https://ui-avatars.com/api/?name=Michael+Rodriguez&background=f59e0b&color=fff", total_score: 88, total_submissions: 10 },
-  { name: "Emma Thompson", avatar: "https://ui-avatars.com/api/?name=Emma+Thompson&background=ef4444&color=fff", total_score: 87, total_submissions: 9 },
-  { name: "David Kim", avatar: "https://ui-avatars.com/api/?name=David+Kim&background=8b5cf6&color=fff", total_score: 84, total_submissions: 11 },
-  { name: "Lisa Wang", avatar: "https://ui-avatars.com/api/?name=Lisa+Wang&background=06b6d4&color=fff", total_score: 82, total_submissions: 8 },
-  { name: "James Wilson", avatar: "https://ui-avatars.com/api/?name=James+Wilson&background=ec4899&color=fff", total_score: 79, total_submissions: 10 },
-  { name: "Sophie Brown", avatar: "https://ui-avatars.com/api/?name=Sophie+Brown&background=84cc16&color=fff", total_score: 76, total_submissions: 7 }
-];
+// Session middleware
+app.use(session({
+  secret: 'student-dashboard-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false, // Set to true in production with HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
-const myScores = {
-  total: 95,
-  scores: [
-    { task_name: "JavaScript Fundamentals", score: 98 },
-    { task_name: "React Components", score: 94 },
-    { task_name: "Node.js Basics", score: 96 },
-    { task_name: "Database Design", score: 92 },
-    { task_name: "API Development", score: 97 },
-    { task_name: "CSS Grid & Flexbox", score: 89 },
-    { task_name: "Authentication Systems", score: 95 },
-    { task_name: "Testing Strategies", score: 93 }
-  ]
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session.userId) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Authentication required' });
+  }
 };
 
-// API Routes
-app.get('/api/leaderboard', (req, res) => {
-  const sortedStudents = [...students].sort((a, b) => b.total_score - a.total_score);
-  res.json(sortedStudents);
+// Helper function to generate avatar URL
+const generateAvatar = (name) => {
+  const colors = ['3b82f6', '10b981', 'f59e0b', 'ef4444', '8b5cf6', '06b6d4', 'ec4899', '84cc16'];
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${randomColor}&color=fff&size=150`;
+};
+
+// Authentication Routes
+app.post('/api/register', async (req, res) => {
+  try {
+    const { username, email, password, fullName } = req.body;
+    
+    // Basic validation
+    if (!username || !email || !password || !fullName) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Check if user exists
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE username = $1 OR email = $2',
+      [username, email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create user
+    const result = await pool.query(
+      'INSERT INTO users (username, email, password, full_name) VALUES ($1, $2, $3, $4) RETURNING id, username, email, full_name',
+      [username, email, hashedPassword, fullName]
+    );
+
+    const newUser = result.rows[0];
+
+    // Add some sample scores for new user
+    const sampleScores = [
+      { task_name: 'JavaScript Fundamentals', score: Math.floor(Math.random() * 20) + 80 },
+      { task_name: 'HTML & CSS Basics', score: Math.floor(Math.random() * 20) + 75 },
+      { task_name: 'React Components', score: Math.floor(Math.random() * 25) + 70 }
+    ];
+
+    for (const scoreData of sampleScores) {
+      await pool.query(
+        'INSERT INTO user_scores (user_id, task_name, score) VALUES ($1, $2, $3)',
+        [newUser.id, scoreData.task_name, scoreData.score]
+      );
+    }
+
+    // Set session
+    req.session.userId = newUser.id;
+    req.session.username = newUser.username;
+
+    res.json({
+      message: 'Registration successful',
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        full_name: newUser.full_name
+      }
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.get('/api/myscores', (req, res) => {
-  res.json(myScores);
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    // Find user
+    const result = await pool.query(
+      'SELECT id, username, email, password, full_name FROM users WHERE username = $1 OR email = $1',
+      [username]
+    );
+
+    const user = result.rows[0];
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Check password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Set session
+    req.session.userId = user.id;
+    req.session.username = user.username;
+
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Could not log out' });
+    }
+    res.json({ message: 'Logout successful' });
+  });
+});
+
+// Check authentication status
+app.get('/api/auth/status', (req, res) => {
+  if (req.session.userId) {
+    res.json({ 
+      authenticated: true, 
+      userId: req.session.userId,
+      username: req.session.username
+    });
+  } else {
+    res.json({ authenticated: false });
+  }
+});
+
+// Dynamic API Routes
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        u.id,
+        u.full_name as name,
+        u.username,
+        COALESCE(AVG(us.score), 0) as total_score,
+        COUNT(us.id) as total_submissions
+      FROM users u
+      LEFT JOIN user_scores us ON u.id = us.user_id
+      GROUP BY u.id, u.full_name, u.username
+      ORDER BY total_score DESC
+    `);
+
+    const leaderboard = result.rows.map(user => ({
+      name: user.name,
+      username: user.username,
+      avatar: generateAvatar(user.name),
+      total_score: Math.round(user.total_score),
+      total_submissions: parseInt(user.total_submissions)
+    }));
+
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Leaderboard error:', error);
+    res.status(500).json({ error: 'Failed to load leaderboard' });
+  }
+});
+
+app.get('/api/myscores', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    // Get user scores
+    const scoresResult = await pool.query(
+      'SELECT task_name, score, submitted_at FROM user_scores WHERE user_id = $1 ORDER BY submitted_at DESC',
+      [userId]
+    );
+
+    const scores = scoresResult.rows;
+    const total = scores.length > 0 ? Math.round(scores.reduce((sum, score) => sum + score.score, 0) / scores.length) : 0;
+
+    res.json({
+      total: total,
+      scores: scores.map(score => ({
+        task_name: score.task_name,
+        score: score.score
+      }))
+    });
+
+  } catch (error) {
+    console.error('My scores error:', error);
+    res.status(500).json({ error: 'Failed to load your scores' });
+  }
+});
+
+// Add score endpoint
+app.post('/api/scores', requireAuth, async (req, res) => {
+  try {
+    const { taskName, score } = req.body;
+    const userId = req.session.userId;
+
+    if (!taskName || score === undefined || score < 0 || score > 100) {
+      return res.status(400).json({ error: 'Valid task name and score (0-100) are required' });
+    }
+
+    await pool.query(
+      'INSERT INTO user_scores (user_id, task_name, score) VALUES ($1, $2, $3)',
+      [userId, taskName, score]
+    );
+
+    res.json({ message: 'Score added successfully' });
+  } catch (error) {
+    console.error('Add score error:', error);
+    res.status(500).json({ error: 'Failed to add score' });
+  }
 });
 
 // Serve HTML files
@@ -65,6 +283,14 @@ app.get('/submit.html', (req, res) => {
 
 app.get('/profile.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/register.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

@@ -105,9 +105,9 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium shadow-lg transition-all duration-300 hover:shadow-xl">Home</a>
                     <a href="/leaderboard.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Leaderboard</a>
-                    <a href="/myscores.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">My Scores</a>
-                    <a href="/submit.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Task Submit</a>
-                    <a href="/profile.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Profile</a>
+                    <div id="authNavigation">
+                        <!-- Navigation will be populated by JavaScript based on auth status -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,15 +126,8 @@
                 <p class="text-2xl text-white/90 max-w-3xl mx-auto mb-12 leading-relaxed">
                     Your ultimate student performance dashboard. Track scores, compete on leaderboards, and achieve academic excellence.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                    <a href="/leaderboard.html" class="btn-3d text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
-                        <i class="fas fa-trophy mr-3"></i>
-                        View Leaderboard
-                    </a>
-                    <a href="/myscores.html" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
-                        <i class="fas fa-chart-line mr-3"></i>
-                        My Progress
-                    </a>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center" id="heroButtons">
+                    <!-- Buttons will be populated by JavaScript based on auth status -->
                 </div>
             </div>
         </div>
@@ -185,5 +178,77 @@
             </div>
         </div>
     </section>
+
+    <script>
+        // Check authentication status and update UI
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const authStatus = await response.json();
+                
+                const authNavigation = document.getElementById('authNavigation');
+                const heroButtons = document.getElementById('heroButtons');
+                
+                if (authStatus.authenticated) {
+                    // User is logged in
+                    authNavigation.innerHTML = `
+                        <a href="/myscores.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">My Scores</a>
+                        <a href="/submit.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Task Submit</a>
+                        <a href="/profile.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Profile</a>
+                        <button onclick="logout()" class="text-gray-700 hover:text-red-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </button>
+                    `;
+                    
+                    heroButtons.innerHTML = `
+                        <a href="/leaderboard.html" class="btn-3d text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
+                            <i class="fas fa-trophy mr-3"></i>
+                            View Leaderboard
+                        </a>
+                        <a href="/myscores.html" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
+                            <i class="fas fa-chart-line mr-3"></i>
+                            My Progress
+                        </a>
+                    `;
+                } else {
+                    // User is not logged in
+                    authNavigation.innerHTML = `
+                        <a href="/login.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Login</a>
+                        <a href="/register.html" class="bg-emerald-500 text-white hover:bg-emerald-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-lg">Register</a>
+                    `;
+                    
+                    heroButtons.innerHTML = `
+                        <a href="/register.html" class="btn-3d bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
+                            <i class="fas fa-user-plus mr-3"></i>
+                            Get Started
+                        </a>
+                        <a href="/login.html" class="btn-3d text-white px-8 py-4 rounded-2xl text-lg font-semibold flex items-center">
+                            <i class="fas fa-sign-in-alt mr-3"></i>
+                            Sign In
+                        </a>
+                    `;
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // Default to not authenticated
+                document.getElementById('authNavigation').innerHTML = `
+                    <a href="/login.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Login</a>
+                    <a href="/register.html" class="bg-emerald-500 text-white hover:bg-emerald-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 shadow-lg">Register</a>
+                `;
+            }
+        }
+        
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.reload();
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        }
+        
+        // Check auth status when page loads
+        document.addEventListener('DOMContentLoaded', checkAuthStatus);
+    </script>
 </body>
 </html>
