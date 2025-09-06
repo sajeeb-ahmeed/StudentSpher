@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Scores - Student Results Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.5s ease-out forwards;
+        }
+        
+        .fade-in-up-delay {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .score-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .score-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .score-gradient {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-graduation-cap text-2xl text-blue-600 mr-2"></i>
+                        <span class="font-bold text-xl text-gray-900">StudyDash</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                    <a href="/leaderboard.html" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Leaderboard</a>
+                    <a href="/myscores.html" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium">My Scores</a>
+                    <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Task Submit</a>
+                    <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">Profile</a>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-12 fade-in-up">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                    <i class="fas fa-chart-line text-blue-600 mr-3"></i>
+                    My Scores
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Track your progress and see how you're performing across all your assignments.
+                </p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <p class="mt-4 text-gray-600">Loading your scores...</p>
+            </div>
+
+            <!-- Scores Content -->
+            <div id="scores-content" class="hidden space-y-8">
+                <!-- Total Score Card -->
+                <div id="total-score-card" class="gradient-bg rounded-2xl p-8 text-white shadow-xl scale-in">
+                    <div class="text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-star text-6xl text-yellow-300"></i>
+                        </div>
+                        <h2 class="text-2xl font-semibold mb-2">Your Total Score</h2>
+                        <div class="text-6xl font-bold mb-2" id="total-score">--</div>
+                        <p class="text-xl opacity-90">Great work! Keep it up!</p>
+                    </div>
+                </div>
+
+                <!-- Individual Scores -->
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-list-alt text-blue-600 mr-3"></i>
+                        Assignment Breakdown
+                    </h3>
+                    
+                    <div id="scores-list" class="space-y-4">
+                        <!-- Score items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-chart-bar text-green-600 mr-3"></i>
+                        Performance Summary
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="stats-summary">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Fetch my scores data and render
+        async function loadMyScores() {
+            try {
+                const response = await fetch('/api/myscores');
+                const data = await response.json();
+                
+                const loadingContainer = document.getElementById('loading');
+                const scoresContent = document.getElementById('scores-content');
+                
+                // Hide loading, show content
+                loadingContainer.classList.add('hidden');
+                scoresContent.classList.remove('hidden');
+                
+                // Update total score
+                document.getElementById('total-score').textContent = data.total;
+                
+                // Render individual scores
+                renderScores(data.scores);
+                
+                // Render stats
+                renderStats(data.scores);
+                
+            } catch (error) {
+                console.error('Error loading scores:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                        <p class="text-red-600">Failed to load your scores. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderScores(scores) {
+            const scoresListContainer = document.getElementById('scores-list');
+            
+            scores.forEach((score, index) => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item bg-gray-50 rounded-xl p-6 border border-gray-100 fade-in-up-delay';
+                
+                const scoreColor = score.score >= 95 ? 'text-green-600 bg-green-100' :
+                                 score.score >= 85 ? 'text-blue-600 bg-blue-100' :
+                                 score.score >= 75 ? 'text-yellow-600 bg-yellow-100' :
+                                 'text-red-600 bg-red-100';
+                
+                const icon = score.score >= 95 ? 'fas fa-trophy' :
+                            score.score >= 85 ? 'fas fa-medal' :
+                            score.score >= 75 ? 'fas fa-thumbs-up' :
+                            'fas fa-chart-line';
+                
+                scoreItem.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="${scoreColor} w-12 h-12 rounded-full flex items-center justify-center">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">${score.task_name}</h4>
+                                <p class="text-gray-600 text-sm">Assignment Score</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold ${scoreColor.split(' ')[0]}">${score.score}</div>
+                            <div class="text-sm text-gray-500">/ 100</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mt-4 bg-gray-200 rounded-full h-2">
+                        <div class="score-gradient h-2 rounded-full transition-all duration-1000 ease-out" 
+                             style="width: ${score.score}%"></div>
+                    </div>
+                `;
+                
+                scoresListContainer.appendChild(scoreItem);
+                
+                // Add staggered animation delay
+                setTimeout(() => {
+                    scoreItem.classList.add('fade-in-up');
+                }, index * 100);
+            });
+        }
+        
+        function renderStats(scores) {
+            const statsContainer = document.getElementById('stats-summary');
+            
+            const average = Math.round(scores.reduce((sum, score) => sum + score.score, 0) / scores.length);
+            const highest = Math.max(...scores.map(s => s.score));
+            const lowest = Math.min(...scores.map(s => s.score));
+            
+            const stats = [
+                { label: 'Average Score', value: average, icon: 'fas fa-calculator', color: 'text-blue-600 bg-blue-100' },
+                { label: 'Highest Score', value: highest, icon: 'fas fa-arrow-up', color: 'text-green-600 bg-green-100' },
+                { label: 'Lowest Score', value: lowest, icon: 'fas fa-arrow-down', color: 'text-red-600 bg-red-100' }
+            ];
+            
+            stats.forEach((stat, index) => {
+                const statCard = document.createElement('div');
+                statCard.className = 'bg-gray-50 rounded-xl p-6 text-center fade-in-up-delay';
+                
+                statCard.innerHTML = `
+                    <div class="${stat.color} w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="${stat.icon}"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900 mb-1">${stat.value}</div>
+                    <div class="text-sm text-gray-600">${stat.label}</div>
+                `;
+                
+                statsContainer.appendChild(statCard);
+                
+                // Add staggered animation delay
+                setTimeout(() => {
+                    statCard.classList.add('fade-in-up');
+                }, (index + 1) * 150);
+            });
+        }
+        
+        // Load scores when page loads
+        document.addEventListener('DOMContentLoaded', loadMyScores);
+    </script>
+</body>
+</html>
