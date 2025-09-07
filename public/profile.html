@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - StudyDash</title>
+    <title data-translate="profile.title">Profile - StudyDash</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -29,9 +29,22 @@
                 -10px -10px 20px rgba(255,255,255,0.7),
                 inset 0 1px 0 rgba(255,255,255,0.8);
         }
+        
+        /* Dark Theme Styles */
+        .dark .glass-card {
+            background: rgba(31, 41, 55, 0.7);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        
+        .dark .profile-3d {
+            background: linear-gradient(145deg, #374151 0%, #4b5563 100%);
+            box-shadow: 
+                20px 20px 40px rgba(0,0,0,0.3),
+                -10px -10px 20px rgba(75, 85, 99, 0.1);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen transition-colors duration-300">
     <!-- Navigation Bar -->
     <nav class="glass-card fixed top-0 left-0 right-0 z-50 shadow-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,15 +52,15 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
                         <i class="fas fa-graduation-cap text-3xl text-blue-600 mr-2"></i>
-                        <span class="font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">StudyDash</span>
+                        <span class="font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">StudyDash</span>
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Home</a>
-                    <a href="/leaderboard.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Leaderboard</a>
-                    <a href="/myscores.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">My Scores</a>
-                    <a href="/submit.html" class="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white hover:shadow-lg">Task Submit</a>
-                    <a href="/profile.html" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium shadow-lg">Profile</a>
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg" data-translate="nav.home">Home</a>
+                    <a href="/leaderboard.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg" data-translate="nav.leaderboard">Leaderboard</a>
+                    <a href="/myscores.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg" data-translate="nav.myscores">My Scores</a>
+                    <a href="/submit.html" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg" data-translate="nav.submit">Task Submit</a>
+                    <a href="/profile.html" class="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium shadow-lg" data-translate="nav.profile">Profile</a>
                 </div>
             </div>
         </div>
@@ -56,11 +69,11 @@
     <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-12 fade-in-up">
-                <h1 class="text-5xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-user-circle text-blue-600 mr-3"></i>
-                    My Profile
+                <h1 class="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                    <i class="fas fa-user-circle text-blue-600 dark:text-blue-400 mr-3"></i>
+                    <span data-translate="profile.heading">My Profile</span>
                 </h1>
-                <p class="text-xl text-gray-600">
+                <p class="text-xl text-gray-600 dark:text-gray-300" data-translate="profile.subtitle">
                     Manage your account settings and preferences
                 </p>
             </div>
@@ -69,66 +82,67 @@
                 <div class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-8 mb-8">
                     <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=3b82f6&color=fff&size=150" alt="Profile" class="w-32 h-32 rounded-full border-4 border-blue-200 shadow-lg">
                     <div class="text-center md:text-left">
-                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Alex Johnson</h2>
-                        <p class="text-lg text-gray-600 mb-2">Computer Science Student</p>
-                        <div class="flex items-center justify-center md:justify-start space-x-4 text-sm text-gray-500">
-                            <span><i class="fas fa-calendar mr-1"></i>Joined March 2024</span>
-                            <span><i class="fas fa-trophy mr-1"></i>Rank #1</span>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Alex Johnson</h2>
+                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">Computer Science Student</p>
+                        <div class="flex items-center justify-center md:justify-start space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                            <span><i class="fas fa-calendar mr-1"></i><span data-translate="profile.joined">Joined March 2024</span></span>
+                            <span><i class="fas fa-trophy mr-1"></i><span data-translate="profile.rank">Rank #1</span></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-4">Profile Information</h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4" data-translate="profile.profile-info">Profile Information</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input type="text" value="Alex Johnson" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="profile.full-name">Full Name</label>
+                                <input type="text" value="Alex Johnson" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" value="alex.johnson@student.edu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="profile.email">Email</label>
+                                <input type="email" value="alex.johnson@student.edu" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
-                                <input type="text" value="CS2024001" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="profile.student-id">Student ID</label>
+                                <input type="text" value="CS2024001" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-4">Academic Stats</h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4" data-translate="profile.academic-stats">Academic Stats</h3>
                         <div class="space-y-4">
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-4 rounded-lg">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">Current GPA</span>
-                                    <span class="text-2xl font-bold text-blue-600">3.95</span>
+                                    <span class="text-gray-600 dark:text-gray-300" data-translate="profile.current-gpa">Current GPA</span>
+                                    <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">3.95</span>
                                 </div>
                             </div>
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg">
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-4 rounded-lg">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">Total Submissions</span>
-                                    <span class="text-2xl font-bold text-green-600">12</span>
+                                    <span class="text-gray-600 dark:text-gray-300" data-translate="profile.total-submissions">Total Submissions</span>
+                                    <span class="text-2xl font-bold text-green-600 dark:text-green-400">12</span>
                                 </div>
                             </div>
-                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg">
+                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 p-4 rounded-lg">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">Average Score</span>
-                                    <span class="text-2xl font-bold text-purple-600">95%</span>
+                                    <span class="text-gray-600 dark:text-gray-300" data-translate="profile.average-score">Average Score</span>
+                                    <span class="text-2xl font-bold text-purple-600 dark:text-purple-400">95%</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-8 pt-8 border-t border-gray-200">
-                    <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg text-lg font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+                <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-600">
+                    <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg text-lg font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300" data-translate="profile.update-profile">
                         Update Profile
                     </button>
                 </div>
             </div>
         </div>
     </main>
+    <script src="/js/theme-lang.js"></script>
 </body>
 </html>

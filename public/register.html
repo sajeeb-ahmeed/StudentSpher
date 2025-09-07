@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - StudyDash</title>
+    <title data-translate="register.title">Register - StudyDash</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -66,9 +66,31 @@
                 inset 8px 8px 16px rgba(16, 185, 129, 0.2),
                 inset -4px -4px 8px rgba(255,255,255,0.9);
         }
+        
+        /* Dark Theme Styles */
+        .dark .register-card {
+            background: linear-gradient(145deg, #374151 0%, #4b5563 100%);
+            box-shadow: 
+                25px 25px 50px rgba(0,0,0,0.3),
+                -15px -15px 30px rgba(75, 85, 99, 0.1);
+        }
+        
+        .dark .input-3d {
+            background: linear-gradient(145deg, #4b5563, #374151);
+            color: white;
+            box-shadow: 
+                inset 8px 8px 16px rgba(0,0,0,0.3),
+                inset -4px -4px 8px rgba(75, 85, 99, 0.3);
+        }
+        
+        .dark .input-3d:focus {
+            box-shadow: 
+                inset 8px 8px 16px rgba(16, 185, 129, 0.3),
+                inset -4px -4px 8px rgba(75, 85, 99, 0.4);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
     <!-- Background Elements -->
     <div class="absolute inset-0 overflow-hidden">
         <div class="absolute top-10 right-10 w-24 h-24 bg-emerald-200 rounded-full opacity-20 floating-element"></div>
@@ -82,18 +104,18 @@
             <div class="floating-element mb-6">
                 <i class="fas fa-user-plus text-6xl text-emerald-600"></i>
             </div>
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-400 mb-2" data-translate="register.join">
                 Join StudyDash
             </h1>
-            <p class="text-gray-600 text-lg">Create your account and start learning</p>
+            <p class="text-gray-600 dark:text-gray-300 text-lg" data-translate="register.subtitle">Create your account and start learning</p>
         </div>
 
         <!-- Registration Form -->
         <div class="register-card rounded-3xl p-8 shadow-2xl fade-in-up">
             <form id="registerForm" class="space-y-6">
                 <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-id-card mr-2 text-emerald-600"></i>Full Name
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-id-card mr-2 text-emerald-600 dark:text-emerald-400"></i><span data-translate="register.full-name">Full Name</span>
                     </label>
                     <input 
                         type="text" 
@@ -101,13 +123,14 @@
                         name="fullName" 
                         required
                         class="input-3d w-full px-4 py-3 rounded-xl border-0 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all duration-300"
+                        data-translate="register.full-name-placeholder"
                         placeholder="Enter your full name"
                     >
                 </div>
 
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-user mr-2 text-emerald-600"></i>Username
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user mr-2 text-emerald-600 dark:text-emerald-400"></i><span data-translate="register.username">Username</span>
                     </label>
                     <input 
                         type="text" 
@@ -115,13 +138,14 @@
                         name="username" 
                         required
                         class="input-3d w-full px-4 py-3 rounded-xl border-0 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all duration-300"
+                        data-translate="register.username-placeholder"
                         placeholder="Choose a username"
                     >
                 </div>
 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-envelope mr-2 text-emerald-600"></i>Email Address
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-envelope mr-2 text-emerald-600 dark:text-emerald-400"></i><span data-translate="register.email">Email Address</span>
                     </label>
                     <input 
                         type="email" 
@@ -129,13 +153,14 @@
                         name="email" 
                         required
                         class="input-3d w-full px-4 py-3 rounded-xl border-0 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all duration-300"
+                        data-translate="register.email-placeholder"
                         placeholder="Enter your email"
                     >
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-lock mr-2 text-emerald-600"></i>Password
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-lock mr-2 text-emerald-600 dark:text-emerald-400"></i><span data-translate="register.password">Password</span>
                     </label>
                     <input 
                         type="password" 
@@ -144,15 +169,16 @@
                         required
                         minlength="6"
                         class="input-3d w-full px-4 py-3 rounded-xl border-0 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all duration-300"
+                        data-translate="register.password-placeholder"
                         placeholder="Create a secure password"
                     >
-                    <p class="text-xs text-gray-500 mt-1">Password must be at least 6 characters long</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-translate="register.password-hint">Password must be at least 6 characters long</p>
                 </div>
 
-                <div id="errorMessage" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+                <div id="errorMessage" class="hidden bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-red-700 dark:text-red-300 text-sm">
                 </div>
 
-                <div id="successMessage" class="hidden bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 text-sm">
+                <div id="successMessage" class="hidden bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3 text-green-700 dark:text-green-300 text-sm">
                 </div>
 
                 <button 
@@ -161,14 +187,14 @@
                     id="registerButton"
                 >
                     <i class="fas fa-user-plus mr-2"></i>
-                    Create Account
+                    <span data-translate="register.create-account">Create Account</span>
                 </button>
             </form>
 
             <div class="mt-8 text-center">
-                <p class="text-gray-600">
-                    Already have an account? 
-                    <a href="/login.html" class="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors">
+                <p class="text-gray-600 dark:text-gray-300">
+                    <span data-translate="register.have-account">Already have an account?</span> 
+                    <a href="/login.html" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-colors" data-translate="register.sign-in-here">
                         Sign in here
                     </a>
                 </p>
@@ -212,7 +238,8 @@
             };
 
             // Show loading state
-            registerButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+            const creatingText = themeLangManager?.t('register.creating-account') || 'Creating Account...';
+            registerButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${creatingText}`;
             registerButton.disabled = true;
 
             try {
@@ -239,10 +266,12 @@
                 showError('Network error. Please try again.');
             } finally {
                 // Reset button state
-                registerButton.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
+                const createText = themeLangManager?.t('register.create-account') || 'Create Account';
+                registerButton.innerHTML = `<i class="fas fa-user-plus mr-2"></i>${createText}`;
                 registerButton.disabled = false;
             }
         });
     </script>
+    <script src="/js/theme-lang.js"></script>
 </body>
 </html>
