@@ -79,32 +79,289 @@
             </div>
 
             <div class="form-3d rounded-3xl p-8 shadow-2xl fade-in-up">
-                <form class="space-y-6">
+                <div id="submitMessage" class="hidden mb-6 p-4 rounded-lg text-sm"></div>
+                
+                <form id="submitForm" class="space-y-6">
                     <div>
                         <label class="block text-lg font-semibold text-gray-900 dark:text-white mb-3" data-translate="submit.assignment-title">Assignment Title</label>
-                        <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" data-translate="submit.assignment-title-placeholder" placeholder="Enter assignment title">
+                        <input type="text" id="assignmentTitle" name="assignment_title" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" data-translate="submit.assignment-title-placeholder" placeholder="Enter assignment title" required>
                     </div>
                     
                     <div>
                         <label class="block text-lg font-semibold text-gray-900 dark:text-white mb-3" data-translate="submit.description">Description</label>
-                        <textarea rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" data-translate="submit.description-placeholder" placeholder="Describe your submission"></textarea>
+                        <textarea id="description" name="description" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" data-translate="submit.description-placeholder" placeholder="Describe your submission" required></textarea>
                     </div>
                     
                     <div>
                         <label class="block text-lg font-semibold text-gray-900 dark:text-white mb-3" data-translate="submit.upload-files">Upload Files</label>
-                        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300">
+                        <div id="fileDropArea" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 cursor-pointer">
+                            <input type="file" id="fileInput" multiple class="hidden" accept=".pdf,.doc,.docx,.txt,.jpg,.png,.zip">
                             <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
                             <p class="text-gray-600 dark:text-gray-300" data-translate="submit.upload-hint">Drag and drop files or click to browse</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Supported: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP (Max 10MB each)</p>
                         </div>
+                        <div id="fileList" class="mt-4 space-y-2"></div>
                     </div>
                     
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl text-lg font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300" data-translate="submit.submit-assignment">
+                    <button type="submit" id="submitButton" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl text-lg font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300" data-translate="submit.submit-assignment">
                         Submit Assignment
                     </button>
                 </form>
+                
+                <!-- Recent Submissions -->
+                <div id="recentSubmissions" class="mt-12">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <i class="fas fa-history text-blue-600 dark:text-blue-400 mr-3"></i>
+                        Recent Submissions
+                    </h3>
+                    <div id="submissionsList" class="space-y-4">
+                        <!-- Submissions will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+    
+    <script>
+        let selectedFiles = [];
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth-status');
+                const data = await response.json();
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+
+        // Handle file drop and selection
+        function initializeFileHandling() {
+            const dropArea = document.getElementById('fileDropArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+
+            // Click to browse files
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            // Drag and drop events
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('border-blue-500', 'dark:border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20');
+            });
+
+            dropArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('border-blue-500', 'dark:border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20');
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('border-blue-500', 'dark:border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+
+        function handleFiles(files) {
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const maxFiles = 5;
+            
+            if (selectedFiles.length + files.length > maxFiles) {
+                showMessage(`Maximum ${maxFiles} files allowed`, 'error');
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                if (file.size > maxSize) {
+                    showMessage(`${file.name} is too large. Max size is 10MB`, 'error');
+                    return;
+                }
+                
+                selectedFiles.push(file);
+            });
+            
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-lg';
+                fileItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-file text-blue-600 dark:text-blue-400 mr-2"></i>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">${file.name}</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">(${formatFileSize(file.size)})</span>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Handle form submission
+        async function submitAssignment(event) {
+            event.preventDefault();
+            
+            const submitButton = document.getElementById('submitButton');
+            const originalText = submitButton.textContent;
+            
+            try {
+                submitButton.textContent = 'Submitting...';
+                submitButton.disabled = true;
+                
+                const formData = {
+                    assignment_title: document.getElementById('assignmentTitle').value,
+                    description: document.getElementById('description').value,
+                    file_names: selectedFiles.map(file => file.name)
+                };
+                
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Assignment submitted successfully!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('submitForm').reset();
+                    selectedFiles = [];
+                    updateFileList();
+                    
+                    // Reload submissions
+                    loadRecentSubmissions();
+                } else {
+                    showMessage(data.error || 'Failed to submit assignment', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error submitting assignment:', error);
+                showMessage('Failed to submit assignment', 'error');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        }
+
+        // Load recent submissions
+        async function loadRecentSubmissions() {
+            try {
+                const response = await fetch('/api/submissions');
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                const submissionsList = document.getElementById('submissionsList');
+                
+                if (data.submissions.length === 0) {
+                    submissionsList.innerHTML = `
+                        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-inbox text-3xl mb-2"></i>
+                            <p>No submissions yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                submissionsList.innerHTML = data.submissions.map(submission => `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-semibold text-gray-900 dark:text-white">${submission.assignment_title}</h4>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    submission.status === 'submitted' 
+                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                    : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                }">
+                                    ${submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">${submission.description}</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <span><i class="fas fa-calendar mr-1"></i>${new Date(submission.submitted_at).toLocaleDateString()}</span>
+                            <span><i class="fas fa-paperclip mr-1"></i>${submission.file_names?.length || 0} files</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('submitMessage');
+            messageDiv.className = `mb-6 p-4 rounded-lg text-sm ${
+                type === 'success' 
+                ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300'
+                : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
+            }`;
+            messageDiv.textContent = message;
+            messageDiv.classList.remove('hidden');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) return;
+            
+            initializeFileHandling();
+            loadRecentSubmissions();
+            
+            // Attach event listeners
+            document.getElementById('submitForm').addEventListener('submit', submitAssignment);
+            
+            // Initialize translations after a short delay
+            setTimeout(() => {
+                if (window.themeLangManager) {
+                    themeLangManager.updateLanguage();
+                }
+            }, 100);
+        });
+    </script>
+    
     <script src="/js/theme-lang.js"></script>
 </body>
 </html>

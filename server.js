@@ -15,18 +15,23 @@ const pool = new Pool({
 });
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? false : true,
+  credentials: true
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 
 // Session middleware
 app.use(session({
-  secret: 'student-dashboard-secret-key',
+  secret: process.env.SESSION_SECRET || 'student-dashboard-default-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // Set to true in production with HTTPS
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -172,7 +177,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Check authentication status
-app.get('/api/auth/status', (req, res) => {
+app.get('/api/auth-status', (req, res) => {
   if (req.session.userId) {
     res.json({ 
       authenticated: true, 
@@ -261,6 +266,164 @@ app.post('/api/scores', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Add score error:', error);
     res.status(500).json({ error: 'Failed to add score' });
+  }
+});
+
+// Profile management endpoints
+app.get('/api/profile', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    
+    const result = await pool.query(
+      'SELECT id, username, email, full_name, photo_url, phone, created_at FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    
+    // Get user statistics
+    const statsResult = await pool.query(
+      'SELECT COUNT(*) as total_submissions, COALESCE(AVG(score), 0) as average_score FROM user_scores WHERE user_id = $1',
+      [userId]
+    );
+
+    const submissionsResult = await pool.query(
+      'SELECT COUNT(*) as assignment_submissions FROM submissions WHERE user_id = $1',
+      [userId]
+    );
+
+    const stats = statsResult.rows[0];
+    const assignmentStats = submissionsResult.rows[0];
+    
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      full_name: user.full_name,
+      photo_url: user.photo_url || generateAvatar(user.full_name),
+      phone: user.phone || '',
+      created_at: user.created_at,
+      stats: {
+        total_submissions: parseInt(stats.total_submissions),
+        assignment_submissions: parseInt(assignmentStats.assignment_submissions),
+        average_score: Math.round(stats.average_score),
+        gpa: Math.min(4.0, (parseFloat(stats.average_score) / 100) * 4).toFixed(2)
+      }
+    });
+
+  } catch (error) {
+    console.error('Profile fetch error:', error);
+    res.status(500).json({ error: 'Failed to load profile' });
+  }
+});
+
+app.put('/api/profile', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { full_name, email, phone, photo_url } = req.body;
+
+    // Basic validation
+    if (!full_name || !email) {
+      return res.status(400).json({ error: 'Full name and email are required' });
+    }
+
+    // Check if email is already taken by another user
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE email = $1 AND id != $2',
+      [email, userId]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Email is already taken by another user' });
+    }
+
+    // Update user profile
+    const result = await pool.query(
+      'UPDATE users SET full_name = $1, email = $2, phone = $3, photo_url = $4 WHERE id = $5 RETURNING id, username, email, full_name, photo_url, phone',
+      [full_name, email, phone, photo_url, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name,
+        photo_url: user.photo_url || generateAvatar(user.full_name),
+        phone: user.phone || ''
+      }
+    });
+
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Assignment submission endpoints
+app.post('/api/submit', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { assignment_title, description, file_names } = req.body;
+
+    // Basic validation
+    if (!assignment_title || !description) {
+      return res.status(400).json({ error: 'Assignment title and description are required' });
+    }
+
+    // Insert submission
+    const result = await pool.query(
+      'INSERT INTO submissions (user_id, assignment_title, description, file_names) VALUES ($1, $2, $3, $4) RETURNING id, submitted_at',
+      [userId, assignment_title, description, file_names || []]
+    );
+
+    const submission = result.rows[0];
+
+    res.json({
+      message: 'Assignment submitted successfully',
+      submission: {
+        id: submission.id,
+        assignment_title,
+        description,
+        file_names: file_names || [],
+        submitted_at: submission.submitted_at,
+        status: 'submitted'
+      }
+    });
+
+  } catch (error) {
+    console.error('Submission error:', error);
+    res.status(500).json({ error: 'Failed to submit assignment' });
+  }
+});
+
+app.get('/api/submissions', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    
+    const result = await pool.query(
+      'SELECT id, assignment_title, description, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
+      [userId]
+    );
+
+    res.json({
+      submissions: result.rows
+    });
+
+  } catch (error) {
+    console.error('Submissions fetch error:', error);
+    res.status(500).json({ error: 'Failed to load submissions' });
   }
 });
 

@@ -80,13 +80,13 @@
 
             <div class="profile-3d rounded-3xl p-8 shadow-2xl mb-8 fade-in-up">
                 <div class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-8 mb-8">
-                    <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=3b82f6&color=fff&size=150" alt="Profile" class="w-32 h-32 rounded-full border-4 border-blue-200 shadow-lg">
+                    <img id="profileImage" src="" alt="Profile" class="w-32 h-32 rounded-full border-4 border-blue-200 shadow-lg">
                     <div class="text-center md:text-left">
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Alex Johnson</h2>
-                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-2">Computer Science Student</p>
+                        <h2 id="profileName" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">--</h2>
+                        <p id="profileUsername" class="text-lg text-gray-600 dark:text-gray-300 mb-2">@--</p>
                         <div class="flex items-center justify-center md:justify-start space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                            <span><i class="fas fa-calendar mr-1"></i><span data-translate="profile.joined">Joined March 2024</span></span>
-                            <span><i class="fas fa-trophy mr-1"></i><span data-translate="profile.rank">Rank #1</span></span>
+                            <span><i class="fas fa-calendar mr-1"></i><span id="joinDate">--</span></span>
+                            <span><i class="fas fa-user mr-1"></i><span id="userId">--</span></span>
                         </div>
                     </div>
                 </div>
@@ -94,20 +94,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4" data-translate="profile.profile-info">Profile Information</h3>
-                        <div class="space-y-4">
+                        <form id="profileForm" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="profile.full-name">Full Name</label>
-                                <input type="text" value="Alex Johnson" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <input type="text" id="fullName" name="full_name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="profile.email">Email</label>
-                                <input type="email" value="alex.johnson@student.edu" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-translate="profile.student-id">Student ID</label>
-                                <input type="text" value="CS2024001" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
-                        </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo URL</label>
+                                <input type="url" id="photoUrl" name="photo_url" placeholder="https://example.com/photo.jpg" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave empty to use auto-generated avatar</p>
+                            </div>
+                        </form>
                     </div>
 
                     <div>
@@ -116,19 +121,25 @@
                             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-4 rounded-lg">
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-300" data-translate="profile.current-gpa">Current GPA</span>
-                                    <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">3.95</span>
+                                    <span id="currentGpa" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--</span>
                                 </div>
                             </div>
                             <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-4 rounded-lg">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 dark:text-gray-300" data-translate="profile.total-submissions">Total Submissions</span>
-                                    <span class="text-2xl font-bold text-green-600 dark:text-green-400">12</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Quiz Submissions</span>
+                                    <span id="totalSubmissions" class="text-2xl font-bold text-green-600 dark:text-green-400">--</span>
                                 </div>
                             </div>
                             <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 p-4 rounded-lg">
                                 <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-300">Assignment Submissions</span>
+                                    <span id="assignmentSubmissions" class="text-2xl font-bold text-purple-600 dark:text-purple-400">--</span>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 p-4 rounded-lg">
+                                <div class="flex justify-between items-center">
                                     <span class="text-gray-600 dark:text-gray-300" data-translate="profile.average-score">Average Score</span>
-                                    <span class="text-2xl font-bold text-purple-600 dark:text-purple-400">95%</span>
+                                    <span id="averageScore" class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">--%</span>
                                 </div>
                             </div>
                         </div>
@@ -136,13 +147,159 @@
                 </div>
 
                 <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-600">
-                    <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg text-lg font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300" data-translate="profile.update-profile">
+                    <div id="updateMessage" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+                    <button type="submit" form="profileForm" id="updateButton" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg text-lg font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300" data-translate="profile.update-profile">
                         Update Profile
                     </button>
                 </div>
             </div>
         </div>
     </main>
+    
+    <script>
+        let currentUser = null;
+
+        // Load user profile data
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/profile');
+                if (response.status === 401) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to load profile');
+                }
+
+                const data = await response.json();
+                currentUser = data;
+                
+                // Update profile display
+                document.getElementById('profileName').textContent = data.full_name;
+                document.getElementById('profileUsername').textContent = `@${data.username}`;
+                document.getElementById('profileImage').src = data.photo_url;
+                document.getElementById('userId').textContent = `ID: ${data.id}`;
+                
+                // Format join date
+                const joinDate = new Date(data.created_at).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long' 
+                });
+                document.getElementById('joinDate').textContent = `Joined ${joinDate}`;
+                
+                // Update form fields
+                document.getElementById('fullName').value = data.full_name;
+                document.getElementById('email').value = data.email;
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('photoUrl').value = data.photo_url || '';
+                
+                // Update stats
+                document.getElementById('currentGpa').textContent = data.stats.gpa;
+                document.getElementById('totalSubmissions').textContent = data.stats.total_submissions;
+                document.getElementById('assignmentSubmissions').textContent = data.stats.assignment_submissions;
+                document.getElementById('averageScore').textContent = `${data.stats.average_score}%`;
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showMessage('Failed to load profile data', 'error');
+            }
+        }
+
+        // Handle profile update
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const updateButton = document.getElementById('updateButton');
+            const originalText = updateButton.textContent;
+            
+            try {
+                updateButton.textContent = 'Updating...';
+                updateButton.disabled = true;
+                
+                const formData = {
+                    full_name: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    photo_url: document.getElementById('photoUrl').value
+                };
+                
+                const response = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Profile updated successfully!', 'success');
+                    // Reload profile to show updated data
+                    await loadProfile();
+                } else {
+                    showMessage(data.error || 'Failed to update profile', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage('Failed to update profile', 'error');
+            } finally {
+                updateButton.textContent = originalText;
+                updateButton.disabled = false;
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('updateMessage');
+            messageDiv.className = `mb-4 p-3 rounded-lg text-sm ${
+                type === 'success' 
+                ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300'
+                : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
+            }`;
+            messageDiv.textContent = message;
+            messageDiv.classList.remove('hidden');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Update photo preview when URL changes
+        function updatePhotoPreview() {
+            const photoUrl = document.getElementById('photoUrl').value;
+            const profileImage = document.getElementById('profileImage');
+            
+            if (photoUrl) {
+                profileImage.src = photoUrl;
+            } else if (currentUser) {
+                // Use default avatar
+                const colors = ['3b82f6', '10b981', 'f59e0b', 'ef4444', '8b5cf6', '06b6d4', 'ec4899', '84cc16'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                profileImage.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.full_name)}&background=${randomColor}&color=fff&size=150`;
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            
+            // Attach event listeners
+            document.getElementById('profileForm').addEventListener('submit', updateProfile);
+            document.getElementById('photoUrl').addEventListener('input', updatePhotoPreview);
+            
+            // Initialize translations after a short delay
+            setTimeout(() => {
+                if (window.themeLangManager) {
+                    themeLangManager.updateLanguage();
+                }
+            }, 100);
+        });
+    </script>
+    
     <script src="/js/theme-lang.js"></script>
 </body>
 </html>
