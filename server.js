@@ -12,12 +12,15 @@ const PORT = process.env.PORT || 5000;
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }
 });
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : true,
+  origin: [
+    "http://localhost:5000",
+    "https://studentspher.onrender.com" // 🔧 replace with your Render domain
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -26,99 +29,62 @@ app.use(express.static('public'));
 
 // Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'student-dashboard-default-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || 'student-dashboard-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
-  if (req.session.userId) {
-    next();
-  } else {
-    res.status(401).json({ error: 'Authentication required' });
-  }
+  if (req.session.userId) return next();
+  return res.status(401).json({ error: 'Authentication required' });
 };
 
 // Helper function to generate avatar URL
 const generateAvatar = (name) => {
-  const colors = ['3b82f6', '10b981', 'f59e0b', 'ef4444', '8b5cf6', '06b6d4', 'ec4899', '84cc16'];
+  const colors = ['3b82f6','10b981','f59e0b','ef4444','8b5cf6','06b6d4','ec4899','84cc16'];
   const randomColor = colors[Math.floor(Math.random() * colors.length)];
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${randomColor}&color=fff&size=150`;
 };
 
-// Authentication Routes
+/* -------------------- AUTH ROUTES -------------------- */
 app.post('/api/register', async (req, res) => {
   try {
     const { username, email, password, fullName } = req.body;
-    
-    // Basic validation
     if (!username || !email || !password || !fullName) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-
     if (password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    // Check if user exists
     const existingUser = await pool.query(
       'SELECT id FROM users WHERE username = $1 OR email = $2',
       [username, email]
     );
-
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create user
+    const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      'INSERT INTO users (username, email, password, full_name) VALUES ($1, $2, $3, $4) RETURNING id, username, email, full_name',
+      'INSERT INTO users (username, email, password, full_name) VALUES ($1,$2,$3,$4) RETURNING id, username, email, full_name',
       [username, email, hashedPassword, fullName]
     );
 
     const newUser = result.rows[0];
-
-    // Add some sample scores for new user
-    const sampleScores = [
-      { task_name: 'JavaScript Fundamentals', score: Math.floor(Math.random() * 20) + 80 },
-      { task_name: 'HTML & CSS Basics', score: Math.floor(Math.random() * 20) + 75 },
-      { task_name: 'React Components', score: Math.floor(Math.random() * 25) + 70 }
-    ];
-
-    for (const scoreData of sampleScores) {
-      await pool.query(
-        'INSERT INTO user_scores (user_id, task_name, score) VALUES ($1, $2, $3)',
-        [newUser.id, scoreData.task_name, scoreData.score]
-      );
-    }
-
-    // Set session
     req.session.userId = newUser.id;
     req.session.username = newUser.username;
 
-    res.json({
-      message: 'Registration successful',
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        full_name: newUser.full_name
-      }
-    });
-
-  } catch (error) {
-    console.error('Registration error:', error);
+    res.json({ message: 'Registration successful', user: newUser });
+  } catch (err) {
+    console.error('Registration error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -126,71 +92,44 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
 
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
-
-    // Find user
     const result = await pool.query(
       'SELECT id, username, email, password, full_name FROM users WHERE username = $1 OR email = $1',
       [username]
     );
-
     const user = result.rows[0];
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
+    if (!user) return res.status(401).json({ error: 'Invalid username or password' });
 
-    // Check password
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ error: 'Invalid username or password' });
 
-    // Set session
     req.session.userId = user.id;
     req.session.username = user.username;
 
-    res.json({
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name
-      }
-    });
-
-  } catch (error) {
-    console.error('Login error:', error);
+    res.json({ message: 'Login successful', user });
+  } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 app.post('/api/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Could not log out' });
-    }
+  req.session.destroy(err => {
+    if (err) return res.status(500).json({ error: 'Could not log out' });
     res.json({ message: 'Logout successful' });
   });
 });
 
-// Check authentication status
-app.get('/api/auth-status', (req, res) => {
+app.get('/api/auth/status', (req, res) => {   // ✅ fixed route
   if (req.session.userId) {
-    res.json({ 
-      authenticated: true, 
-      userId: req.session.userId,
-      username: req.session.username
-    });
+    res.json({ authenticated: true, userId: req.session.userId, username: req.session.username });
   } else {
     res.json({ authenticated: false });
   }
 });
 
-// Dynamic API Routes
+/* -------------------- LEADERBOARD & SCORES -------------------- */
 app.get('/api/leaderboard', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -215,8 +154,8 @@ app.get('/api/leaderboard', async (req, res) => {
     }));
 
     res.json(leaderboard);
-  } catch (error) {
-    console.error('Leaderboard error:', error);
+  } catch (err) {
+    console.error('Leaderboard error:', err);
     res.status(500).json({ error: 'Failed to load leaderboard' });
   }
 });
@@ -224,8 +163,6 @@ app.get('/api/leaderboard', async (req, res) => {
 app.get('/api/myscores', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-
-    // Get user scores
     const scoresResult = await pool.query(
       'SELECT task_name, score, submitted_at FROM user_scores WHERE user_id = $1 ORDER BY submitted_at DESC',
       [userId]
@@ -235,20 +172,18 @@ app.get('/api/myscores', requireAuth, async (req, res) => {
     const total = scores.length > 0 ? Math.round(scores.reduce((sum, score) => sum + score.score, 0) / scores.length) : 0;
 
     res.json({
-      total: total,
+      total,
       scores: scores.map(score => ({
         task_name: score.task_name,
         score: score.score
       }))
     });
-
-  } catch (error) {
-    console.error('My scores error:', error);
+  } catch (err) {
+    console.error('My scores error:', err);
     res.status(500).json({ error: 'Failed to load your scores' });
   }
 });
 
-// Add score endpoint
 app.post('/api/scores', requireAuth, async (req, res) => {
   try {
     const { taskName, score } = req.body;
@@ -264,60 +199,29 @@ app.post('/api/scores', requireAuth, async (req, res) => {
     );
 
     res.json({ message: 'Score added successfully' });
-  } catch (error) {
-    console.error('Add score error:', error);
+  } catch (err) {
+    console.error('Add score error:', err);
     res.status(500).json({ error: 'Failed to add score' });
   }
 });
 
-// Profile management endpoints
+/* -------------------- PROFILE ROUTES -------------------- */
 app.get('/api/profile', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    
     const result = await pool.query(
-      'SELECT id, username, email, full_name, photo_url, phone, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, full_name, phone, avatar_url, created_at FROM users WHERE id = $1',
       [userId]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
 
     const user = result.rows[0];
-    
-    // Get user statistics
-    const statsResult = await pool.query(
-      'SELECT COUNT(*) as total_submissions, COALESCE(AVG(score), 0) as average_score FROM user_scores WHERE user_id = $1',
-      [userId]
-    );
-
-    const submissionsResult = await pool.query(
-      'SELECT COUNT(*) as assignment_submissions FROM submissions WHERE user_id = $1',
-      [userId]
-    );
-
-    const stats = statsResult.rows[0];
-    const assignmentStats = submissionsResult.rows[0];
-    
     res.json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      full_name: user.full_name,
-      photo_url: user.photo_url || generateAvatar(user.full_name),
-      phone: user.phone || '',
-      created_at: user.created_at,
-      stats: {
-        total_submissions: parseInt(stats.total_submissions),
-        assignment_submissions: parseInt(assignmentStats.assignment_submissions),
-        average_score: Math.round(stats.average_score),
-        gpa: Math.min(4.0, (parseFloat(stats.average_score) / 100) * 4).toFixed(2)
-      }
+      ...user,
+      avatar_url: user.avatar_url || generateAvatar(user.full_name)
     });
-
-  } catch (error) {
-    console.error('Profile fetch error:', error);
+  } catch (err) {
+    console.error('Profile fetch error:', err);
     res.status(500).json({ error: 'Failed to load profile' });
   }
 });
@@ -325,86 +229,46 @@ app.get('/api/profile', requireAuth, async (req, res) => {
 app.put('/api/profile', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { full_name, email, phone, photo_url } = req.body;
+    const { full_name, email, phone, avatar_url } = req.body;
 
-    // Basic validation
-    if (!full_name || !email) {
-      return res.status(400).json({ error: 'Full name and email are required' });
-    }
+    if (!full_name || !email) return res.status(400).json({ error: 'Full name and email are required' });
 
-    // Check if email is already taken by another user
     const existingUser = await pool.query(
       'SELECT id FROM users WHERE email = $1 AND id != $2',
       [email, userId]
     );
+    if (existingUser.rows.length > 0) return res.status(400).json({ error: 'Email already taken' });
 
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ error: 'Email is already taken by another user' });
-    }
-
-    // Update user profile
     const result = await pool.query(
-      'UPDATE users SET full_name = $1, email = $2, phone = $3, photo_url = $4 WHERE id = $5 RETURNING id, username, email, full_name, photo_url, phone',
-      [full_name, email, phone, photo_url, userId]
+      'UPDATE users SET full_name=$1, email=$2, phone=$3, avatar_url=$4 WHERE id=$5 RETURNING id, username, email, full_name, phone, avatar_url',
+      [full_name, email, phone, avatar_url, userId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const user = result.rows[0];
-    
-    res.json({
-      message: 'Profile updated successfully',
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        full_name: user.full_name,
-        photo_url: user.photo_url || generateAvatar(user.full_name),
-        phone: user.phone || ''
-      }
-    });
-
-  } catch (error) {
-    console.error('Profile update error:', error);
+    res.json({ message: 'Profile updated successfully', user: result.rows[0] });
+  } catch (err) {
+    console.error('Profile update error:', err);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 
-// Assignment submission endpoints
+/* -------------------- SUBMISSIONS ROUTES -------------------- */
 app.post('/api/submit', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
     const { assignment_title, description, file_names } = req.body;
 
-    // Basic validation
     if (!assignment_title || !description) {
       return res.status(400).json({ error: 'Assignment title and description are required' });
     }
 
-    // Insert submission
     const result = await pool.query(
-      'INSERT INTO submissions (user_id, assignment_title, description, file_names) VALUES ($1, $2, $3, $4) RETURNING id, submitted_at',
+      'INSERT INTO submissions (user_id, assignment_title, description, file_names) VALUES ($1,$2,$3,$4) RETURNING id, submitted_at',
       [userId, assignment_title, description, file_names || []]
     );
 
-    const submission = result.rows[0];
-
-    res.json({
-      message: 'Assignment submitted successfully',
-      submission: {
-        id: submission.id,
-        assignment_title,
-        description,
-        file_names: file_names || [],
-        submitted_at: submission.submitted_at,
-        status: 'submitted'
-      }
-    });
-
-  } catch (error) {
-    console.error('Submission error:', error);
+    res.json({ message: 'Assignment submitted successfully', submission: result.rows[0] });
+  } catch (err) {
+    console.error('Submission error:', err);
     res.status(500).json({ error: 'Failed to submit assignment' });
   }
 });
@@ -412,51 +276,27 @@ app.post('/api/submit', requireAuth, async (req, res) => {
 app.get('/api/submissions', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    
     const result = await pool.query(
-      'SELECT id, assignment_title, description, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
+      'SELECT id, assignment_title, description, file_names, submitted_at FROM submissions WHERE user_id=$1 ORDER BY submitted_at DESC',
       [userId]
     );
-
-    res.json({
-      submissions: result.rows
-    });
-
-  } catch (error) {
-    console.error('Submissions fetch error:', error);
+    res.json({ submissions: result.rows });
+  } catch (err) {
+    console.error('Submissions fetch error:', err);
     res.status(500).json({ error: 'Failed to load submissions' });
   }
 });
 
-// Serve HTML files
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+/* -------------------- SERVE STATIC PAGES -------------------- */
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/leaderboard.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'leaderboard.html')));
+app.get('/myscores.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'myscores.html')));
+app.get('/submit.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'submit.html')));
+app.get('/profile.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profile.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/register.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 
-app.get('/leaderboard.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'leaderboard.html'));
-});
-
-app.get('/myscores.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'myscores.html'));
-});
-
-app.get('/submit.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'submit.html'));
-});
-
-app.get('/profile.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-});
-
-app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/register.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-
+/* -------------------- START SERVER -------------------- */
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
