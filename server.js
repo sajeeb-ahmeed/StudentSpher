@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -9,6 +8,11 @@ const { Pool } = require('pg');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for production (required for Render)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -17,7 +21,7 @@ const pool = new Pool({
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : true,
+  origin: process.env.NODE_ENV === 'production' ? true : true,
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
