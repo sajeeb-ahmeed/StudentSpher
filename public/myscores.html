@@ -219,7 +219,9 @@
         // Fetch my scores data and render
         async function loadMyScores() {
             try {
-                const response = await fetch('/api/myscores');
+                const response = await fetch('/api/myscores', {
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 
                 const loadingContainer = document.getElementById('loading');
@@ -341,7 +343,9 @@
         async function initializePage() {
             // Check auth status
             try {
-                const response = await fetch('/api/auth/status');
+                const response = await fetch('/api/auth-status', {
+                    credentials: 'include'
+                });
                 const authStatus = await response.json();
                 
                 if (!authStatus.authenticated) {
@@ -371,7 +375,10 @@
         
         async function logout() {
             try {
-                await fetch('/api/logout', { method: 'POST' });
+                await fetch('/api/logout', { 
+                    method: 'POST',
+                    credentials: 'include'
+                });
                 window.location.href = '/';
             } catch (error) {
                 console.error('Logout failed:', error);

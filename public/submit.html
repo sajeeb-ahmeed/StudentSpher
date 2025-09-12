@@ -82,6 +82,16 @@
                 <div id="submitMessage" class="hidden mb-6 p-4 rounded-lg text-sm"></div>
                 
                 <form id="submitForm" class="space-y-6">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-users text-blue-600 dark:text-blue-400"></i>
+                            <div>
+                                <h3 class="font-semibold text-blue-900 dark:text-blue-100">Your Batch</h3>
+                                <p id="userBatch" class="text-sm text-blue-700 dark:text-blue-300">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div>
                         <label class="block text-lg font-semibold text-gray-900 dark:text-white mb-3" data-translate="submit.assignment-title">Assignment Title</label>
                         <input type="text" id="assignmentTitle" name="assignment_title" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" data-translate="submit.assignment-title-placeholder" placeholder="Enter assignment title" required>
@@ -125,15 +135,28 @@
     <script>
         let selectedFiles = [];
 
-        // Check authentication
+        // Check authentication and get user info
         async function checkAuth() {
             try {
-                const response = await fetch('/api/auth-status');
+                const response = await fetch('/api/auth-status', {
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 if (!data.authenticated) {
                     window.location.href = '/login.html';
                     return false;
                 }
+                
+                // Get user profile for batch info
+                const profileResponse = await fetch('/api/profile', {
+                    credentials: 'include'
+                });
+                const profile = await profileResponse.json();
+                if (profile.batch) {
+                    const batchText = profile.batch === 'batch1' ? 'Batch 1' : 'Batch 2';
+                    document.getElementById('userBatch').textContent = batchText;
+                }
+                
                 return true;
             } catch (error) {
                 console.error('Auth check failed:', error);
@@ -251,6 +274,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
                 
@@ -282,7 +306,9 @@
         // Load recent submissions
         async function loadRecentSubmissions() {
             try {
-                const response = await fetch('/api/submissions');
+                const response = await fetch('/api/submissions', {
+                    credentials: 'include'
+                });
                 if (!response.ok) return;
                 
                 const data = await response.json();
