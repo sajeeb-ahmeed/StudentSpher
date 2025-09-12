@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -47,6 +48,36 @@ const requireAuth = (req, res, next) => {
     next();
   } else {
     res.status(401).json({ error: 'Authentication required' });
+  }
+};
+
+// Admin authorization middleware (for demo - in production use proper role system)
+const requireAdmin = async (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  
+  try {
+    // For demo purposes, checking if user is from batch1 OR username contains 'admin'
+    // In production, you'd have a proper roles table
+    const result = await pool.query(
+      'SELECT username, batch FROM users WHERE id = $1', 
+      [req.session.userId]
+    );
+    
+    const user = result.rows[0];
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+    
+    // Demo admin check - modify as needed for your requirements
+    if (user.username.toLowerCase().includes('admin') || user.batch === 'batch1') {
+      next();
+    } else {
+      res.status(403).json({ error: 'Admin access required' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Authorization check failed' });
   }
 };
 
@@ -185,18 +216,7 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-// Check authentication status
-app.get('/api/auth-status', (req, res) => {
-  if (req.session.userId) {
-    res.json({ 
-      authenticated: true, 
-      userId: req.session.userId,
-      username: req.session.username
-    });
-  } else {
-    res.json({ authenticated: false });
-  }
-});
+// Simple auth check removed - using enhanced version below
 
 // Dynamic API Routes
 app.get('/api/leaderboard', requireAuth, async (req, res) => {
@@ -233,6 +253,44 @@ app.get('/api/leaderboard', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Leaderboard error:', error);
     res.status(500).json({ error: 'Failed to load leaderboard' });
+  }
+});
+
+// Check authentication status
+app.get('/api/auth-status', async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      return res.json({ authenticated: false });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, full_name, email, batch FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (result.rows.length === 0) {
+      req.session.destroy();
+      return res.json({ authenticated: false });
+    }
+
+    const user = result.rows[0];
+    const isAdmin = user.username.toLowerCase().includes('admin') || user.batch === 'batch1';
+
+    res.json({
+      authenticated: true,
+      isAdmin,
+      user: {
+        id: user.id,
+        username: user.username,
+        full_name: user.full_name,
+        email: user.email,
+        batch: user.batch
+      }
+    });
+
+  } catch (error) {
+    console.error('Auth status check error:', error);
+    res.status(500).json({ error: 'Failed to check auth status' });
   }
 });
 
@@ -399,17 +457,31 @@ app.put('/api/profile', requireAuth, async (req, res) => {
 app.post('/api/submit', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { assignment_title, description, file_names } = req.body;
+    const { assignment_title, description, drive_link, file_names } = req.body;
 
     // Basic validation
     if (!assignment_title || !description) {
       return res.status(400).json({ error: 'Assignment title and description are required' });
     }
 
+    // Validate drive_link if provided
+    let validatedDriveLink = null;
+    if (drive_link && drive_link.trim()) {
+      const trimmedLink = drive_link.trim();
+      // Basic URL validation and security check
+      if (trimmedLink.length > 500) {
+        return res.status(400).json({ error: 'Drive link is too long' });
+      }
+      if (!trimmedLink.match(/^https?:\/\/.+/i)) {
+        return res.status(400).json({ error: 'Drive link must be a valid HTTP/HTTPS URL' });
+      }
+      validatedDriveLink = trimmedLink;
+    }
+
     // Insert submission
     const result = await pool.query(
-      'INSERT INTO submissions (user_id, assignment_title, description, file_names) VALUES ($1, $2, $3, $4) RETURNING id, submitted_at',
-      [userId, assignment_title, description, file_names || []]
+      'INSERT INTO submissions (user_id, assignment_title, description, drive_link, file_names) VALUES ($1, $2, $3, $4, $5) RETURNING id, submitted_at',
+      [userId, assignment_title, description, validatedDriveLink, file_names || []]
     );
 
     const submission = result.rows[0];
@@ -437,7 +509,7 @@ app.get('/api/submissions', requireAuth, async (req, res) => {
     const userId = req.session.userId;
     
     const result = await pool.query(
-      'SELECT id, assignment_title, description, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
+      'SELECT id, assignment_title, description, drive_link, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
       [userId]
     );
 
@@ -448,6 +520,105 @@ app.get('/api/submissions', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Submissions fetch error:', error);
     res.status(500).json({ error: 'Failed to load submissions' });
+  }
+});
+
+// Admin endpoints
+app.get('/api/admin/students', requireAdmin, async (req, res) => {
+  try {
+    const { batch } = req.query;
+    
+    let whereClause = '';
+    let queryParams = [];
+    
+    if (batch && batch !== 'all') {
+      whereClause = 'WHERE u.batch = $1';
+      queryParams.push(batch);
+    }
+    
+    const result = await pool.query(`
+      SELECT 
+        u.id,
+        u.username,
+        u.email,
+        u.full_name,
+        u.photo_url,
+        u.batch,
+        u.created_at,
+        COALESCE(scores.total_score, 0) as total_score,
+        COALESCE(subs.submission_count, 0) as submission_count
+      FROM users u
+      LEFT JOIN (
+        SELECT user_id, SUM(score) as total_score 
+        FROM user_scores 
+        GROUP BY user_id
+      ) scores ON u.id = scores.user_id
+      LEFT JOIN (
+        SELECT user_id, COUNT(*) as submission_count 
+        FROM submissions 
+        GROUP BY user_id
+      ) subs ON u.id = subs.user_id
+      ${whereClause}
+      ORDER BY u.full_name
+    `, queryParams);
+
+    const students = result.rows.map(student => ({
+      ...student,
+      photo_url: student.photo_url || generateAvatar(student.full_name)
+    }));
+
+    res.json({
+      students,
+      batch: batch || 'all'
+    });
+
+  } catch (error) {
+    console.error('Admin students fetch error:', error);
+    res.status(500).json({ error: 'Failed to load students data' });
+  }
+});
+
+// Get individual student details for admin
+app.get('/api/admin/student/:id', requireAdmin, async (req, res) => {
+  try {
+    const studentId = req.params.id;
+    
+    // Get student basic info
+    const studentResult = await pool.query(
+      'SELECT id, username, email, full_name, photo_url, batch, created_at FROM users WHERE id = $1',
+      [studentId]
+    );
+    
+    if (studentResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+    
+    const student = studentResult.rows[0];
+    
+    // Get student's academic scores
+    const scoresResult = await pool.query(
+      'SELECT task_name, score, submitted_at FROM user_scores WHERE user_id = $1 ORDER BY submitted_at DESC',
+      [studentId]
+    );
+    
+    // Get student's submissions
+    const submissionsResult = await pool.query(
+      'SELECT id, assignment_title, description, drive_link, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
+      [studentId]
+    );
+    
+    res.json({
+      student: {
+        ...student,
+        photo_url: student.photo_url || generateAvatar(student.full_name)
+      },
+      scores: scoresResult.rows,
+      submissions: submissionsResult.rows
+    });
+    
+  } catch (error) {
+    console.error('Admin student details fetch error:', error);
+    res.status(500).json({ error: 'Failed to load student details' });
   }
 });
 
@@ -478,6 +649,14 @@ app.get('/login.html', (req, res) => {
 
 app.get('/register.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/student-details.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'student-details.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

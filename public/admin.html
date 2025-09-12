@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - StudyDash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass-card {
+            background: rgba(31, 41, 55, 0.7);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        
+        .admin-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 
+                20px 20px 40px rgba(0,0,0,0.1),
+                -10px -10px 20px rgba(255,255,255,0.7),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .dark .admin-card {
+            background: linear-gradient(145deg, #374151 0%, #4b5563 100%);
+            box-shadow: 
+                25px 25px 50px rgba(0,0,0,0.3),
+                -15px -15px 30px rgba(75, 85, 99, 0.1);
+        }
+        
+        .btn-admin {
+            background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+            box-shadow: 
+                8px 8px 16px rgba(0,0,0,0.2),
+                -4px -4px 8px rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                12px 12px 24px rgba(0,0,0,0.3),
+                -6px -6px 12px rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen transition-colors duration-300">
+    <!-- Navigation Bar -->
+    <nav class="glass-card fixed top-0 left-0 right-0 z-50 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-graduation-cap text-3xl text-blue-600 mr-2"></i>
+                        <span class="font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">StudyDash Admin</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">Home</a>
+                    <a href="/admin.html" class="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium shadow-lg">Admin Dashboard</a>
+                    <div id="themeLanguageControls" class="flex items-center space-x-2 ml-4">
+                        <!-- Theme and language controls will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                    <i class="fas fa-chart-bar text-blue-600 dark:text-blue-400 mr-3"></i>
+                    Admin Dashboard
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300">
+                    View student performance and submissions by batch
+                </p>
+            </div>
+
+            <!-- Batch Selection -->
+            <div class="admin-card rounded-3xl p-8 shadow-2xl mb-8">
+                <div class="flex flex-wrap gap-4 justify-center items-center mb-6">
+                    <button id="batch1Btn" onclick="selectBatch('batch1')" class="btn-admin text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        <i class="fas fa-users mr-2"></i>Batch 1
+                    </button>
+                    <button id="batch2Btn" onclick="selectBatch('batch2')" class="btn-admin text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        <i class="fas fa-users mr-2"></i>Batch 2
+                    </button>
+                    <button id="allStudentsBtn" onclick="selectBatch('all')" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        <i class="fas fa-globe mr-2"></i>All Students
+                    </button>
+                </div>
+                
+                <div id="batchInfo" class="text-center text-gray-600 dark:text-gray-300">
+                    Select a batch to view student data
+                </div>
+            </div>
+
+            <!-- Student Statistics -->
+            <div id="statsSection" class="hidden mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="admin-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-blue-600 dark:text-blue-400" id="totalStudents">0</div>
+                        <div class="text-gray-600 dark:text-gray-300">Total Students</div>
+                    </div>
+                    <div class="admin-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-green-600 dark:text-green-400" id="submittedCount">0</div>
+                        <div class="text-gray-600 dark:text-gray-300">Submitted Tasks</div>
+                    </div>
+                    <div class="admin-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-orange-600 dark:text-orange-400" id="pendingCount">0</div>
+                        <div class="text-gray-600 dark:text-gray-300">Pending Tasks</div>
+                    </div>
+                    <div class="admin-card rounded-2xl p-6 text-center">
+                        <div class="text-3xl font-bold text-purple-600 dark:text-purple-400" id="avgScore">0</div>
+                        <div class="text-gray-600 dark:text-gray-300">Average Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students List -->
+            <div id="studentsSection" class="hidden">
+                <div class="admin-card rounded-3xl p-8 shadow-2xl">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <i class="fas fa-list text-blue-600 dark:text-blue-400 mr-3"></i>
+                        Students Overview
+                    </h3>
+                    
+                    <!-- Filter Options -->
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <select id="sortFilter" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <option value="name">Sort by Name</option>
+                            <option value="score">Sort by Score</option>
+                            <option value="submissions">Sort by Submissions</option>
+                        </select>
+                        <select id="submissionFilter" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <option value="all">All Students</option>
+                            <option value="submitted">Submitted Only</option>
+                            <option value="pending">Pending Only</option>
+                        </select>
+                    </div>
+                    
+                    <div id="studentsList" class="space-y-4">
+                        <!-- Students will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentBatch = 'all';
+        let allStudentsData = [];
+        
+        // Select batch and load data
+        async function selectBatch(batch) {
+            currentBatch = batch;
+            
+            // Update button states
+            document.querySelectorAll('button[id$="Btn"]').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-blue-300');
+            });
+            document.getElementById(batch === 'all' ? 'allStudentsBtn' : batch + 'Btn').classList.add('ring-2', 'ring-blue-300');
+            
+            // Update batch info
+            const batchNames = {
+                'batch1': 'Batch 1 Students',
+                'batch2': 'Batch 2 Students', 
+                'all': 'All Students'
+            };
+            document.getElementById('batchInfo').textContent = `Viewing: ${batchNames[batch]}`;
+            
+            // Show sections
+            document.getElementById('statsSection').classList.remove('hidden');
+            document.getElementById('studentsSection').classList.remove('hidden');
+            
+            // Load data
+            await loadAdminData();
+        }
+        
+        // Load admin data from API
+        async function loadAdminData() {
+            try {
+                const response = await fetch(`/api/admin/students?batch=${currentBatch}`, {
+                    credentials: 'include'
+                });
+                
+                if (response.status === 401) {
+                    document.getElementById('batchInfo').innerHTML = `
+                        <div class="text-center py-8 text-red-600 dark:text-red-400">
+                            <i class="fas fa-lock text-3xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Authentication Required</h3>
+                            <p>Please <a href="/login.html" class="text-blue-600 hover:underline">login</a> to access the admin dashboard.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (response.status === 403) {
+                    document.getElementById('batchInfo').innerHTML = `
+                        <div class="text-center py-8 text-red-600 dark:text-red-400">
+                            <i class="fas fa-user-shield text-3xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Admin Access Required</h3>
+                            <p>You need admin privileges to access this dashboard.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                allStudentsData = data.students;
+                
+                updateStatistics(data);
+                displayStudents(allStudentsData);
+                
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                document.getElementById('batchInfo').innerHTML = `
+                    <div class="text-center py-8 text-red-600 dark:text-red-400">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Error Loading Data</h3>
+                        <p>Failed to load admin data. Please try again later.</p>
+                        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update statistics display
+        function updateStatistics(data) {
+            document.getElementById('totalStudents').textContent = data.students.length;
+            document.getElementById('submittedCount').textContent = data.students.filter(s => s.submission_count > 0).length;
+            document.getElementById('pendingCount').textContent = data.students.filter(s => s.submission_count === 0).length;
+            
+            const avgScore = data.students.reduce((sum, s) => sum + (s.total_score || 0), 0) / Math.max(data.students.length, 1);
+            document.getElementById('avgScore').textContent = Math.round(avgScore);
+        }
+        
+        // Display students list
+        function displayStudents(students) {
+            const studentsList = document.getElementById('studentsList');
+            
+            if (students.length === 0) {
+                studentsList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-users text-3xl mb-2"></i>
+                        <p>No students found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            studentsList.innerHTML = students.map(student => `
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center space-x-4">
+                            <img src="${student.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.full_name)}&background=3b82f6&color=fff&size=64`}" 
+                                 alt="${student.full_name}" 
+                                 class="w-16 h-16 rounded-full">
+                            <div>
+                                <h4 class="font-bold text-lg text-gray-900 dark:text-white">${student.full_name}</h4>
+                                <p class="text-gray-600 dark:text-gray-300">@${student.username}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${student.email}</p>
+                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 mt-1">
+                                    ${student.batch === 'batch1' ? 'Batch 1' : 'Batch 2'}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">${student.total_score || 0}</div>
+                            <div class="text-sm text-gray-500">Total Score</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                                <i class="fas fa-tasks mr-1"></i>${student.submission_count} submissions
+                            </div>
+                            <button onclick="viewStudentDetails('${student.id}')" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-eye mr-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // View student details (will redirect to student detail page)
+        function viewStudentDetails(studentId) {
+            window.location.href = `/student-details.html?id=${studentId}`;
+        }
+        
+        // Filter and sort students
+        function filterStudents() {
+            const sortBy = document.getElementById('sortFilter').value;
+            const filterBy = document.getElementById('submissionFilter').value;
+            
+            let filteredStudents = [...allStudentsData];
+            
+            // Apply filter
+            if (filterBy === 'submitted') {
+                filteredStudents = filteredStudents.filter(s => s.submission_count > 0);
+            } else if (filterBy === 'pending') {
+                filteredStudents = filteredStudents.filter(s => s.submission_count === 0);
+            }
+            
+            // Apply sort
+            filteredStudents.sort((a, b) => {
+                switch (sortBy) {
+                    case 'name':
+                        return a.full_name.localeCompare(b.full_name);
+                    case 'score':
+                        return (b.total_score || 0) - (a.total_score || 0);
+                    case 'submissions':
+                        return b.submission_count - a.submission_count;
+                    default:
+                        return 0;
+                }
+            });
+            
+            displayStudents(filteredStudents);
+        }
+        
+        // Check authentication and initialize page
+        async function checkAuthAndInitialize() {
+            try {
+                const response = await fetch('/api/auth-status', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Auth check failed: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    document.getElementById('batchInfo').innerHTML = `
+                        <div class="text-center py-8 text-yellow-600 dark:text-yellow-400">
+                            <i class="fas fa-sign-in-alt text-3xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Login Required</h3>
+                            <p>Please login to access the admin dashboard.</p>
+                            <a href="/login.html" class="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Go to Login
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (!data.isAdmin) {
+                    document.getElementById('batchInfo').innerHTML = `
+                        <div class="text-center py-8 text-red-600 dark:text-red-400">
+                            <i class="fas fa-user-shield text-3xl mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Admin Access Required</h3>
+                            <p>You need admin privileges to access this dashboard.</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Only Batch 1 users and users with 'admin' in their username can access admin features.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // User is authenticated and has admin privileges
+                document.getElementById('batchInfo').innerHTML = `
+                    <div class="text-center py-4 text-green-600 dark:text-green-400">
+                        <i class="fas fa-user-check text-2xl mb-2"></i>
+                        <p>Welcome to Admin Dashboard, ${data.user.full_name}!</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Select a batch to view student data.</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                document.getElementById('batchInfo').innerHTML = `
+                    <div class="text-center py-8 text-red-600 dark:text-red-400">
+                        <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Connection Error</h3>
+                        <p>Unable to verify authentication. Please check your connection.</p>
+                        <button onclick="checkAuthAndInitialize()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication first
+            checkAuthAndInitialize();
+            
+            // Add event listeners to filters
+            document.getElementById('sortFilter').addEventListener('change', filterStudents);
+            document.getElementById('submissionFilter').addEventListener('change', filterStudents);
+            
+            // Initialize translations after a short delay
+            setTimeout(() => {
+                if (window.themeLangManager) {
+                    themeLangManager.updateLanguage();
+                }
+            }, 100);
+        });
+    </script>
+    
+    <script src="/js/theme-lang.js"></script>
+</body>
+</html>

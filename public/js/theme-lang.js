@@ -55,40 +55,70 @@ class ThemeLangManager {
     }
 
     createControls() {
-        // Create theme and language controls
-        const controlsHTML = `
-            <div class="flex items-center space-x-4">
-                <!-- Theme Toggle -->
-                <button onclick="themeLangManager.toggleTheme()" class="p-2 rounded-lg bg-white/10 dark:bg-gray-800/50 backdrop-blur-md border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all duration-300">
+        // Wait a bit for DOM to be fully ready
+        setTimeout(() => {
+            const themeLanguageControls = document.getElementById('themeLanguageControls');
+            
+            if (themeLanguageControls) {
+                // Create theme toggle button
+                const themeBtn = document.createElement('button');
+                themeBtn.className = 'p-2 rounded-lg bg-white/10 dark:bg-gray-800/50 backdrop-blur-md border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all duration-300';
+                themeBtn.innerHTML = `
                     <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
                     <i class="fas fa-moon text-blue-400 hidden dark:inline"></i>
-                </button>
+                `;
+                themeBtn.onclick = () => this.toggleTheme();
                 
-                <!-- Language Toggle -->
-                <div class="relative">
-                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="p-2 px-3 rounded-lg bg-white/10 dark:bg-gray-800/50 backdrop-blur-md border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all duration-300 flex items-center space-x-2">
-                        <i class="fas fa-globe text-blue-600 dark:text-blue-400"></i>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${this.currentLanguage.toUpperCase()}</span>
-                    </button>
-                    <div class="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden z-50">
-                        <button onclick="themeLangManager.setLanguage('en'); this.parentElement.classList.add('hidden')" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg transition-colors text-gray-700 dark:text-gray-300">
-                            🇺🇸 English
-                        </button>
-                        <button onclick="themeLangManager.setLanguage('bn'); this.parentElement.classList.add('hidden')" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg transition-colors text-gray-700 dark:text-gray-300">
-                            🇧🇩 বাংলা
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Add controls to navigation if it exists
-        const authNavigation = document.getElementById('authNavigation');
-        if (authNavigation) {
-            const controlsDiv = document.createElement('div');
-            controlsDiv.innerHTML = controlsHTML;
-            authNavigation.appendChild(controlsDiv.firstElementChild);
-        }
+                // Create language toggle container
+                const langContainer = document.createElement('div');
+                langContainer.className = 'relative';
+                
+                const langBtn = document.createElement('button');
+                langBtn.className = 'p-2 px-3 rounded-lg bg-white/10 dark:bg-gray-800/50 backdrop-blur-md border border-white/20 dark:border-gray-700 hover:bg-white/20 dark:hover:bg-gray-700/50 transition-all duration-300 flex items-center space-x-2';
+                langBtn.innerHTML = `
+                    <i class="fas fa-globe text-blue-600 dark:text-blue-400"></i>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${this.currentLanguage.toUpperCase()}</span>
+                `;
+                
+                const langDropdown = document.createElement('div');
+                langDropdown.className = 'absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden z-50';
+                
+                const enBtn = document.createElement('button');
+                enBtn.className = 'w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg transition-colors text-gray-700 dark:text-gray-300';
+                enBtn.innerHTML = '🇺🇸 English';
+                enBtn.onclick = () => {
+                    this.setLanguage('en');
+                    langDropdown.classList.add('hidden');
+                    langBtn.querySelector('span').textContent = 'EN';
+                };
+                
+                const bnBtn = document.createElement('button');
+                bnBtn.className = 'w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg transition-colors text-gray-700 dark:text-gray-300';
+                bnBtn.innerHTML = '🇧🇩 বাংলা';
+                bnBtn.onclick = () => {
+                    this.setLanguage('bn');
+                    langDropdown.classList.add('hidden');
+                    langBtn.querySelector('span').textContent = 'BN';
+                };
+                
+                langBtn.onclick = () => langDropdown.classList.toggle('hidden');
+                
+                langDropdown.appendChild(enBtn);
+                langDropdown.appendChild(bnBtn);
+                langContainer.appendChild(langBtn);
+                langContainer.appendChild(langDropdown);
+                
+                // Create container for both controls
+                const controlsContainer = document.createElement('div');
+                controlsContainer.className = 'flex items-center space-x-4';
+                controlsContainer.appendChild(themeBtn);
+                controlsContainer.appendChild(langContainer);
+                
+                // Clear and add new controls
+                themeLanguageControls.innerHTML = '';
+                themeLanguageControls.appendChild(controlsContainer);
+            }
+        }, 100);
     }
 
     // Get translated text
@@ -330,4 +360,5 @@ const translations = {
 let themeLangManager;
 document.addEventListener('DOMContentLoaded', () => {
     themeLangManager = new ThemeLangManager();
+    window.themeLangManager = themeLangManager; // Make globally accessible
 });
