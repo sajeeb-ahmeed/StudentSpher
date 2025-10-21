@@ -1,98 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Design & JS Final Exam</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background: #f9fafb;
-        }
-
-        h2 {
-            color: #1d4ed8;
-        }
-
-        .question {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .success {
-            display: none;
-            color: green;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background: #1d4ed8;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2563eb;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Design & JS Final Exam</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
+<body class="bg-light">
 
-<body>
-    <h2>Web Design & JavaScript Final Exam</h2>
-    <p>⏰ সময়: ২ ঘণ্টা ৩০ মিনিট</p>
+<div class="container my-5">
+  <h2 class="text-center mb-4">Web Design & JavaScript Final Exam</h2>
+  
+  <form id="examForm">
 
-    <form id="examForm">
+    <!-- MCQs -->
+    <h4>Part 1: MCQs (30 Marks)</h4>
+    <div class="mb-4">
+      <p>1. Which tag is used for navigation in HTML5?</p>
+      <div><input type="radio" name="q1" value="<nav>"> &lt;nav&gt;</div>
+      <div><input type="radio" name="q1" value="<navigation>"> &lt;navigation&gt;</div>
+      <div><input type="radio" name="q1" value="<menu>"> &lt;menu&gt;</div>
+    </div>
 
-        <!-- Part 1: MCQs -->
-        <h3>Part 1: MCQs (2 marks each)</h3>
+    <div class="mb-4">
+      <p>2. Box model components are?</p>
+      <div><input type="radio" name="q2" value="border, padding, content"> Border, Padding, Content</div>
+      <div><input type="radio" name="q2" value="margin, padding, border"> Margin, Padding, Border</div>
+      <div><input type="radio" name="q2" value="width, height, padding"> Width, Height, Padding</div>
+    </div>
 
-        <div class="question">
-            <label>1. Which HTML5 tag is used to define navigation links?</label><br>
-            <input type="radio" name="q1" value="<section>"> &lt;section&gt;<br>
-            <input type="radio" name="q1" value="<header>"> &lt;header&gt;<br>
-            <input type="radio" name="q1" value="<nav>"> &lt;nav&gt;<br>
-            <input type="radio" name="q1" value="<navlink>"> &lt;navlink&gt;<br>
-        </div>
-
-        <div class="question">
-            <label>2. What does CSS box-model include?</label><br>
-            <input type="radio" name="q2" value="margin"> margin<br>
-            <input type="radio" name="q2" value="padding only"> padding only<br>
-            <input type="radio" name="q2" value="border, padding, content"> border, padding, content<br>
-            <input type="radio" name="q2" value="content only"> content only<br>
-        </div>
-
-        <div class="question">
-            <label>3. Which property centers a block element horizontally?</label><br>
-            <input type="radio" name="q3" value="text-align:center;"> text-align:center;<br>
-            <input type="radio" name="q3" value="align:center;"> align:center;<br>
-            <input type="radio" name="q3" value="position:center;"> position:center;<br>
-            <input type="radio" name="q3" value="margin: 0 auto;"> margin: 0 auto;<br>
-        </div>
-
-        <div class="question">
-            <label>4. Bootstrap grid uses how many columns by default?</label><br>
-            <input type="radio" name="q4" value="6"> 6<br>
-            <input type="radio" name="q4" value="4"> 4<br>
-            <input type="radio" name="q4" value="12"> 12<br>
-            <input type="radio" name="q4" value="16"> 16<br>
-        </div>
+    <div class="mb-4">
+      <p>3. Centering a block element horizontally in CSS?</p>
+      <div><input type="radio" name="q3" value="margin: 0 auto;"> margin: 0 auto;</div>
+      <div><input type="radio" name="q3" value="text-align: center;"> text-align: center;</div>
+      <div><input type="radio" name="q3" value="align-items: center;"> align-items: center;</div>
+    </div>
 
         <div class="question">
             <label>5. Which tag is used to include JavaScript file?</label><br>
@@ -182,92 +124,114 @@
             <input type="radio" name="q15" value="#main"> #main<br>
         </div>
 
-        <!-- Part 2: Short Questions -->
-        <h3>Part 2: Short Questions (4 marks each)</h3>
-        <div class="question">
-            <label>16. Explain the HTML5 semantic elements and why they are important:</label><br>
-            <textarea name="short1" rows="3"></textarea>
-        </div>
-        <div class="question">
-            <label>17. Describe the CSS box model and how padding and margin affect layout:</label><br>
-            <textarea name="short2" rows="3"></textarea>
-        </div>
-        <div class="question">
-            <label>18. What is the Bootstrap grid system? Give example using col-md-6:</label><br>
-            <textarea name="short3" rows="3"></textarea>
-        </div>
-        <div class="question">
-            <label>19. Explain JavaScript variable types and difference between var, let, const:</label><br>
-            <textarea name="short4" rows="3"></textarea>
-        </div>
-        <div class="question">
-            <label>20. Describe event delegation in JavaScript and why it's useful:</label><br>
-            <textarea name="short5" rows="3"></textarea>
-        </div>
-
-        <!-- Part 3: Coding Problems -->
-        <h3>Part 3: Coding Problems (6 marks each)</h3>
-        <div class="question">
-            <label>21. Write HTML & CSS code to create a responsive navigation bar using Flexbox:</label><br>
-            <textarea name="coding1" rows="5"></textarea>
-        </div>
-        <div class="question">
-            <label>22. Write JavaScript code to validate an email input in a form:</label><br>
-            <textarea name="coding2" rows="5"></textarea>
-        </div>
-        <div class="question">
-            <label>23. Create a small web page layout using Bootstrap grid:</label><br>
-            <textarea name="coding3" rows="5"></textarea>
-        </div>
-        <div class="question">
-            <label>24. Write a JavaScript program that prints numbers 1-100 replacing multiples of 3 with “Fizz” and 5
-                with “Buzz”:</label><br>
-            <textarea name="coding4" rows="5"></textarea>
-        </div>
-        <div class="question">
-            <label>25. Build a simple digital clock using JavaScript:</label><br>
-            <textarea name="coding5" rows="5"></textarea>
-        </div>
-
-        <!-- Part 4: Mini Project -->
-        <h3>Part 4: Mini Project (20 marks)</h3>
-        <div class="question">
-            <label>26. Upload your mini project files (ZIP) or provide Drive link:</label><br>
-            <input type="text" name="miniProjectLink" placeholder="Drive link"><br>
-            <input type="file" name="miniProjectFiles" multiple>
-        </div>
-
-        <button type="submit">Submit Exam</button>
-    </form>
-
-    <div class="success" id="successMsg">Exam submitted successfully! Your MCQ score: <span id="mcqScoreSpan"></span>
+        <!-- Short Questions -->
+    <h4>Part 2: Short Questions (20 Marks)</h4>
+    <div class="mb-3">
+      <label for="short1" class="form-label">1. Explain the difference between inline and block elements.</label>
+      <textarea id="short1" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="short2" class="form-label">2. What is the purpose of the CSS z-index property?</label>
+      <textarea id="short2" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="short3" class="form-label">3. Describe the difference between var, let, and const in JS.</label>
+      <textarea id="short3" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="short4" class="form-label">4. What are semantic HTML tags? Give examples.</label>
+      <textarea id="short4" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="short5" class="form-label">5. Explain event bubbling in JavaScript.</label>
+      <textarea id="short5" class="form-control" rows="2"></textarea>
     </div>
 
-    <script>
-        const form = document.getElementById('examForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    <!-- Coding Problems -->
+    <h4>Part 3: Coding Problems (30 Marks)</h4>
+    <div class="mb-3">
+      <label for="coding1" class="form-label">1. Write a function to reverse a string in JS.</label>
+      <textarea id="coding1" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="coding2" class="form-label">2. Create a responsive navbar using Bootstrap 5.</label>
+      <textarea id="coding2" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="coding3" class="form-label">3. Write JS code to validate a form input for email.</label>
+      <textarea id="coding3" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="coding4" class="form-label">4. Make a table dynamically in JS from an array of objects.</label>
+      <textarea id="coding4" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="coding5" class="form-label">5. Write CSS to create a card with hover shadow effect.</label>
+      <textarea id="coding5" class="form-control" rows="3"></textarea>
+    </div>
 
-            const formData = new FormData(form);
-            const answers = {};
-            formData.forEach((value, key) => { answers[key] = value; });
+    <!-- Mini Project -->
+    <h4>Part 4: Mini Project (20 Marks)</h4>
+    <div class="mb-3">
+      <label for="miniProjectLink" class="form-label">Provide link to your mini project (GitHub/Drive):</label>
+      <input type="url" id="miniProjectLink" class="form-control">
+    </div>
 
-            const res = await fetch('/api/submit-final-exam', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answers })
-            });
+    <button type="submit" class="btn btn-primary">Submit Exam</button>
 
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('successMsg').style.display = 'block';
-                document.getElementById('mcqScoreSpan').innerText = data.mcqScore;
-                form.reset();
-            } else {
-                alert(data.error || 'Submission failed');
-            }
-        });
-    </script>
+  </form>
+</div>
+
+<script>
+const examForm = document.getElementById('examForm');
+
+examForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const answers = {};
+
+  // MCQs (replace 15 with total number of MCQs)
+  for (let i = 1; i <= 15; i++) {
+    const el = document.querySelector(`input[name="q${i}"]:checked`);
+    answers[`q${i}`] = el ? el.value : null;
+  }
+
+  // Short questions
+  for (let i = 1; i <= 5; i++) {
+    answers[`short${i}`] = document.getElementById(`short${i}`).value;
+  }
+
+  // Coding problems
+  for (let i = 1; i <= 5; i++) {
+    answers[`coding${i}`] = document.getElementById(`coding${i}`).value;
+  }
+
+  // Mini project link
+  answers.miniProjectLink = document.getElementById('miniProjectLink').value;
+
+  try {
+    const res = await fetch('/api/submit-final-exam', {
+      method: 'POST',
+      credentials: 'include', // important for session
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(`Exam submitted successfully! MCQ score: ${data.mcqScore}`);
+      examForm.reset();
+    } else {
+      alert(`Error: ${data.error}`);
+    }
+  } catch (err) {
+    console.error('Submission error:', err);
+    alert('Something went wrong. Try again.');
+  }
+});
+</script>
 </body>
 
 </html>
+
