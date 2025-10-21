@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Design & JavaScript Final Exam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2,
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            padding: 5px;
+        }
+
+        button {
+            display: block;
+            margin: auto;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .success-msg {
+            text-align: center;
+            font-size: 22px;
+            margin-top: 20px;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Web Design & JavaScript Final Exam</h1>
+
+        <form id="examForm">
+            <!-- Section: Student Information -->
+            <div class="section">
+                <h2>Student Information</h2>
+                <div class="question">
+                    <label>Full Name:</label>
+                    <input type="text" name="fullName" required>
+                </div>
+                <div class="question">
+                    <label>Student ID / Roll Number:</label>
+                    <input type="text" name="studentId" required>
+                </div>
+                <div class="question">
+                    <label>Email Address:</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="question">
+                    <label>Department / Batch:</label>
+                    <input type="text" name="department" required>
+                </div>
+            </div>
+
+            <!-- Section: MCQs -->
+            <div class="section">
+                <h2>Part 1: MCQs (2 marks each)</h2>
+
+                <div class="question">
+                    <h3>1. Which HTML5 tag is used to define navigation links?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="<section>"> &lt;section&gt;</label>
+                        <label><input type="radio" name="q1" value="<header>"> &lt;header&gt;</label>
+                        <label><input type="radio" name="q1" value="<nav>"> &lt;nav&gt;</label>
+                        <label><input type="radio" name="q1" value="<navlink>"> &lt;navlink&gt;</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>2. What does CSS box-model include?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q2" value="margin, border, padding, content"> margin, border,
+                            padding, content</label>
+                        <label><input type="radio" name="q2" value="padding only"> padding only</label>
+                        <label><input type="radio" name="q2" value="border, padding"> border, padding</label>
+                        <label><input type="radio" name="q2" value="content only"> content only</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>3. Which property centers a block element horizontally?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q3" value="text-align:center;"> text-align:center;</label>
+                        <label><input type="radio" name="q3" value="align:center;"> align:center;</label>
+                        <label><input type="radio" name="q3" value="position:center;"> position:center;</label>
+                        <label><input type="radio" name="q3" value="margin: 0 auto;"> margin: 0 auto;</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>4. Bootstrap grid uses how many columns by default?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q4" value="6"> 6</label>
+                        <label><input type="radio" name="q4" value="4"> 4</label>
+                        <label><input type="radio" name="q4" value="12"> 12</label>
+                        <label><input type="radio" name="q4" value="16"> 16</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>5. Which tag is used to include JavaScript file?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q5" value="<js src='...'>">&lt;js src='...'&gt;</label>
+                        <label><input type="radio" name="q5" value="<javascript>">&lt;javascript&gt;</label>
+                        <label><input type="radio" name="q5" value="<link rel='script'>">&lt;link
+                            rel='script'&gt;</label>
+                        <label><input type="radio" name="q5" value="<script src='...'>">&lt;script src='...'&gt;</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>6. Which CSS selector selects elements with class 'btn'?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q6" value="#btn"> #btn</label>
+                        <label><input type="radio" name="q6" value="btn"> btn</label>
+                        <label><input type="radio" name="q6" value="*btn"> *btn</label>
+                        <label><input type="radio" name="q6" value=".btn"> .btn</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>7. Which HTTP method is typically used to submit form data?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q7" value="GET"> GET</label>
+                        <label><input type="radio" name="q7" value="DELETE"> DELETE</label>
+                        <label><input type="radio" name="q7" value="PUT"> PUT</label>
+                        <label><input type="radio" name="q7" value="POST"> POST</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>8. What does '===' do in JavaScript?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q8" value="Assigns value"> Assigns value</label>
+                        <label><input type="radio" name="q8" value="Loose equality"> Loose equality</label>
+                        <label><input type="radio" name="q8" value="Not equal"> Not equal</label>
+                        <label><input type="radio" name="q8" value="Strict equality (type+value)"> Strict equality
+                            (type+value)</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>9. Which event fires when a form is submitted?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q9" value="click"> click</label>
+                        <label><input type="radio" name="q9" value="change"> change</label>
+                        <label><input type="radio" name="q9" value="input"> input</label>
+                        <label><input type="radio" name="q9" value="submit"> submit</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>10. Which Bootstrap class creates a responsive image?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q10" value="responsive-img"> responsive-img</label>
+                        <label><input type="radio" name="q10" value="img-responsive"> img-responsive</label>
+                        <label><input type="radio" name="q10" value="img-scale"> img-scale</label>
+                        <label><input type="radio" name="q10" value="img-fluid"> img-fluid</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>11. How do you declare a JavaScript function?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q11" value="def myFunc() {}"> def myFunc() {}</label>
+                        <label><input type="radio" name="q11" value="fn myFunc() {}"> fn myFunc() {}</label>
+                        <label><input type="radio" name="q11" value="func myFunc() {}"> func myFunc() {}</label>
+                        <label><input type="radio" name="q11" value="function myFunc() {}"> function myFunc() {}</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>12. Which CSS property changes text color?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q12" value="text-color"> text-color</label>
+                        <label><input type="radio" name="q12" value="font-color"> font-color</label>
+                        <label><input type="radio" name="q12" value="fgcolor"> fgcolor</label>
+                        <label><input type="radio" name="q12" value="color"> color</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>13. Which HTML attribute specifies an input's placeholder?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q13" value="hint"> hint</label>
+                        <label><input type="radio" name="q13" value="title"> title</label>
+                        <label><input type="radio" name="q13" value="alt"> alt</label>
+                        <label><input type="radio" name="q13" value="placeholder"> placeholder</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>14. Which JavaScript method logs to console?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q14" value="print()"> print()</label>
+                        <label><input type="radio" name="q14" value="echo()"> echo()</label>
+                        <label><input type="radio" name="q14" value="log()"> log()</label>
+                        <label><input type="radio" name="q14" value="console.log()"> console.log()</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>15. In CSS, how do you select an element with id 'main'?</h3>
+                    <div class="options">
+                        <label><input type="radio" name="q15" value=".main"> .main</label>
+                        <label><input type="radio" name="q15" value="main"> main</label>
+                        <label><input type="radio" name="q15" value="*main"> *main</label>
+                        <label><input type="radio" name="q15" value="#main"> #main</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Short Questions -->
+            <div class="section">
+                <h2>Part 2: Short Questions (4 marks each)</h2>
+                <div class="question">
+                    <label>1. Explain the HTML5 semantic elements and why they are important.</label>
+                    <textarea name="sq1"></textarea>
+                </div>
+                <div class="question">
+                    <label>2. Describe the CSS box model and how padding and margin affect layout.</label>
+                    <textarea name="sq2"></textarea>
+                </div>
+                <div class="question">
+                    <label>3. What is the Bootstrap grid system? Give an example of using col-md-6.</label>
+                    <textarea name="sq3"></textarea>
+                </div>
+                <div class="question">
+                    <label>4. Explain JavaScript variable types and difference between var, let, const.</label>
+                    <textarea name="sq4"></textarea>
+                </div>
+                <div class="question">
+                    <label>5. Describe event delegation in JavaScript and why it's useful.</label>
+                    <textarea name="sq5"></textarea>
+                </div>
+            </div>
+
+            <!-- Section: Coding Problems -->
+            <div class="section">
+                <h2>Part 3: Coding Problems (6 marks each)</h2>
+                <div class="question">
+                    <label>1. Write HTML & CSS code to create a responsive navigation bar using Flexbox.</label>
+                    <textarea name="cp1"></textarea>
+                </div>
+                <div class="question">
+                    <label>2. Write JavaScript code to validate an email input in a form.</label>
+                    <textarea name="cp2"></textarea>
+                </div>
+                <div class="question">
+                    <label>3. Create a small web page layout using Bootstrap grid.</label>
+                    <textarea name="cp3"></textarea>
+                </div>
+                <div class="question">
+                    <label>4. Write a JavaScript program that prints numbers from 1 to 100, replacing multiples of 3
+                        with “Fizz” and 5 with “Buzz.”</label>
+                    <textarea name="cp4"></textarea>
+                </div>
+                <div class="question">
+                    <label>5. Build a simple digital clock using JavaScript.</label>
+                    <textarea name="cp5"></textarea>
+                </div>
+            </div>
+
+            <!-- Section: Mini Project -->
+            <div class="section">
+                <h2>Part 4: Mini Project (20 marks)</h2>
+                <div class="question">
+                    <label>Upload your project files (ZIP or link):</label>
+                    <input type="file" name="miniProject">
+                </div>
+            </div>
+
+            <button type="button" onclick="submitExam()">Submit Exam</button>
+        </form>
+
+        <div class="success-msg" id="successMsg"></div>
+    </div>
+
+    <script>
+        // MCQ answers (optional for scoring)
+        const mcqAnswers = {
+            q1: "<nav>",
+            q2: "margin, border, padding, content",
+            q3: "margin: 0 auto",
+            q4: "12",
+            q5: "<script src='...'>",
+            q6: ".btn",
+            q7: "POST",
+            q8: "Strict equality (type+value)",
+            q9: "submit",
+            q10: "img-fluid",
+            q11: "function myFunc() {}",
+            q12: "color",
+            q13: "placeholder",
+            q14: "console.log()",
+            q15: "#main"
+        };
+
+        function submitExam() {
+            // Optional: you can calculate MCQ score here
+            // let score = 0;
+            // for(const q in mcqAnswers){
+            //   const selected = document.querySelector(`input[name="${q}"]:checked`);
+            //   if(selected && selected.value === mcqAnswers[q]) score += 2;
+            // }
+
+            document.getElementById('successMsg').innerText = "✅ Your exam has been submitted successfully!";
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+
+</body>
+
+</html>
