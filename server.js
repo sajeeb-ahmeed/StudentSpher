@@ -622,6 +622,61 @@ app.get('/api/admin/student/:id', requireAdmin, async (req, res) => {
   }
 });
 
+
+app.post('/api/submit-final-exam', requireAuth, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { answers } = req.body; // All answers: MCQ + short + coding + mini project
+
+    if (!answers || typeof answers !== 'object') {
+      return res.status(400).json({ error: 'Invalid answers data' });
+    }
+
+    // MCQ answer key
+    const mcqAnswerKey = {
+      q1: "<nav>",
+      q2: "margin, border, padding, content",
+      q3: "margin: 0 auto;",
+      q4: "12",
+      q5: "<script src='...'>",
+      q6: ".btn",
+      q7: "POST",
+      q8: "Strict equality (type+value)",
+      q9: "submit",
+      q10: "img-fluid",
+      q11: "function myFunc() {}",
+      q12: "color",
+      q13: "placeholder",
+      q14: "console.log()",
+      q15: "#main"
+    };
+
+    // Calculate MCQ score (2 marks each)
+    let mcqScore = 0;
+    Object.keys(mcqAnswerKey).forEach(q => {
+      if (answers[q] && answers[q] === mcqAnswerKey[q]) mcqScore += 2;
+    });
+
+    // Save all answers + MCQ score in exam_submissions
+    await pool.query(
+      `INSERT INTO exam_submissions (user_id, answers, mcq_score) VALUES ($1, $2, $3)`,
+      [userId, answers, mcqScore]
+    );
+
+    // Optionally, save MCQ score in user_scores table
+    await pool.query(
+      `INSERT INTO user_scores (user_id, task_name, score) VALUES ($1, $2, $3)`,
+      [userId, 'Final Exam MCQ', mcqScore]
+    );
+
+    res.json({ success: true, mcqScore });
+
+  } catch (error) {
+    console.error('Exam submission error:', error);
+    res.status(500).json({ error: 'Failed to submit exam' });
+  }
+});
+
 // Serve HTML files
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
