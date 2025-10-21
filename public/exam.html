@@ -124,87 +124,77 @@
             <input type="radio" name="q15" value="#main"> #main<br>
         </div>
 
-    <!-- Part 2: Short Questions -->
-<h4>Part 2: Short Questions (20 Marks)</h4>
-<div class="mb-3">
-  <label>1. Explain the difference between inline and block elements.</label>
-  <textarea id="short1" class="form-control" rows="2"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>2. What is the purpose of the CSS z-index property?</label>
-  <textarea id="short2" class="form-control" rows="2"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>3. Describe the difference between var, let, and const in JS.</label>
-  <textarea id="short3" class="form-control" rows="2"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>4. What are semantic HTML tags? Give examples.</label>
-  <textarea id="short4" class="form-control" rows="2"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>5. Explain event bubbling in JavaScript.</label>
-  <textarea id="short5" class="form-control" rows="2"  ></textarea>
-</div>
+ <!-- Part 2: Short Questions -->
+    <h2>Part 2: Short Questions</h2>
+    <label>Short Answer 1:</label>
+    <textarea name="short1" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Short Answer 2:</label>
+    <textarea name="short2" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Short Answer 3:</label>
+    <textarea name="short3" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Short Answer 4:</label>
+    <textarea name="short4" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Short Answer 5:</label>
+    <textarea name="short5" required onpaste="return false;" oncopy="return false;"></textarea>
 
-<!-- Part 3: Coding Problems -->
-<h4>Part 3: Coding Problems (30 Marks)</h4>
-<div class="mb-3">
-  <label>1. Write a function to reverse a string in JS.</label>
-  <textarea id="coding1" class="form-control" rows="3"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>2. Create a responsive navbar using Bootstrap 5.</label>
-  <textarea id="coding2" class="form-control" rows="3"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>3. Write JS code to validate a form input for email.</label>
-  <textarea id="coding3" class="form-control" rows="3"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>4. Make a table dynamically in JS from an array of objects.</label>
-  <textarea id="coding4" class="form-control" rows="3"  ></textarea>
-</div>
-<div class="mb-3">
-  <label>5. Write CSS to create a card with hover shadow effect.</label>
-  <textarea id="coding5" class="form-control" rows="3" ></textarea>
-</div>
-    <!-- Mini Project -->
-    <h4>Part 4: Mini Project (20 Marks)</h4>
-    <div class="mb-3">
-      <label for="miniProjectLink" class="form-label">Provide link to your mini project (GitHub/Drive):</label>
-      <input type="url" id="miniProjectLink" class="form-control">
-    </div>
-<div id="result"></div>
-    <button type="submit" class="btn btn-primary">Submit Exam</button>
+    <!-- Part 3: Coding -->
+    <h2>Part 3: Coding</h2>
+    <label>Coding 1:</label>
+    <textarea name="coding1" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Coding 2:</label>
+    <textarea name="coding2" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Coding 3:</label>
+    <textarea name="coding3" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Coding 4:</label>
+    <textarea name="coding4" required onpaste="return false;" oncopy="return false;"></textarea>
+    <label>Coding 5:</label>
+    <textarea name="coding5" required onpaste="return false;" oncopy="return false;"></textarea>
 
+    <!-- Part 4: Mini Project -->
+    <h2>Part 4: Mini Project</h2>
+    <label>Google Drive Link:</label>
+    <input type="url" name="miniProjectLink">
+
+    <button type="submit">Submit Exam</button>
   </form>
-</div>
 
-<script>
+  <div id="result" style="margin-top:20px; font-weight:bold;"></div>
 
-const form = document.getElementById('examForm');
+  <script>
+    const form = document.getElementById('examForm');
     const resultDiv = document.getElementById('result');
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // You can optionally collect answers locally
-      // const formData = new FormData(form);
-      // const answers = {};
-      // formData.forEach((value, key) => { answers[key] = value; });
+      const formData = new FormData(form);
+      const answers = {};
+      formData.forEach((value, key) => { answers[key] = value; });
 
-      // Show success message
-      resultDiv.innerText = "Exam submitted successfully! ✅";
-alert("Exam submitted successfully! ✅");
-      // Reset the form
-      form.reset();
+      try {
+        const response = await fetch('/api/submit-final-exam', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          resultDiv.innerText = `Exam submitted successfully! Your MCQ Score: ${data.mcqScore}`;
+          form.reset();
+        } else {
+          resultDiv.innerText = `Error: ${data.error || 'Submission failed'}`;
+        }
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerText = 'Error: Failed to submit exam. Please try again.';
+      }
     });
-</script>
+  </script>
 </body>
-
 </html>
-
 
 
 
