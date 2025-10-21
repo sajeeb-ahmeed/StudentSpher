@@ -626,6 +626,7 @@ app.get('/api/admin/student/:id', requireAdmin, async (req, res) => {
 app.post('/api/submit-final-exam', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
+    console.log('Submitting exam for user:', req.session.userId);
     const { answers } = req.body;
 
     if (!answers) return res.status(400).json({ error: 'No answers provided' });
