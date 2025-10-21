@@ -34,7 +34,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'student-dashboard-default-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax',
@@ -56,20 +56,20 @@ const requireAdmin = async (req, res, next) => {
   if (!req.session.userId) {
     return res.status(401).json({ error: 'Authentication required' });
   }
-  
+
   try {
     // For demo purposes, checking if user is from batch1 OR username contains 'admin'
     // In production, you'd have a proper roles table
     const result = await pool.query(
-      'SELECT username, batch FROM users WHERE id = $1', 
+      'SELECT username, batch FROM users WHERE id = $1',
       [req.session.userId]
     );
-    
+
     const user = result.rows[0];
     if (!user) {
       return res.status(401).json({ error: 'User not found' });
     }
-    
+
     // Demo admin check - modify as needed for your requirements
     if (user.username.toLowerCase().includes('admin') || user.batch === 'batch1') {
       next();
@@ -92,12 +92,12 @@ const generateAvatar = (name) => {
 app.post('/api/register', async (req, res) => {
   try {
     const { username, email, password, fullName, batch } = req.body;
-    
+
     // Basic validation
     if (!username || !email || !password || !fullName || !batch) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-    
+
     if (!['batch1', 'batch2'].includes(batch)) {
       return res.status(400).json({ error: 'Invalid batch selection' });
     }
@@ -224,7 +224,7 @@ app.get('/api/leaderboard', requireAuth, async (req, res) => {
     // Get current user's batch
     const userResult = await pool.query('SELECT batch FROM users WHERE id = $1', [req.session.userId]);
     const userBatch = userResult.rows[0]?.batch;
-    
+
     const result = await pool.query(`
       SELECT 
         u.id,
@@ -347,7 +347,7 @@ app.post('/api/scores', requireAuth, async (req, res) => {
 app.get('/api/profile', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    
+
     const result = await pool.query(
       'SELECT id, username, email, full_name, photo_url, phone, batch, created_at FROM users WHERE id = $1',
       [userId]
@@ -358,7 +358,7 @@ app.get('/api/profile', requireAuth, async (req, res) => {
     }
 
     const user = result.rows[0];
-    
+
     // Get user statistics
     const statsResult = await pool.query(
       'SELECT COUNT(*) as total_submissions, COALESCE(AVG(score), 0) as average_score FROM user_scores WHERE user_id = $1',
@@ -372,7 +372,7 @@ app.get('/api/profile', requireAuth, async (req, res) => {
 
     const stats = statsResult.rows[0];
     const assignmentStats = submissionsResult.rows[0];
-    
+
     res.json({
       id: user.id,
       username: user.username,
@@ -425,7 +425,7 @@ app.put('/api/profile', requireAuth, async (req, res) => {
       query = 'UPDATE users SET full_name = $1, email = $2, phone = $3, photo_url = $4 WHERE id = $5 RETURNING id, username, email, full_name, photo_url, phone, batch';
       params = [full_name, email, phone, photo_url, userId];
     }
-    
+
     const result = await pool.query(query, params);
 
     if (result.rows.length === 0) {
@@ -433,7 +433,7 @@ app.put('/api/profile', requireAuth, async (req, res) => {
     }
 
     const user = result.rows[0];
-    
+
     res.json({
       message: 'Profile updated successfully',
       user: {
@@ -507,7 +507,7 @@ app.post('/api/submit', requireAuth, async (req, res) => {
 app.get('/api/submissions', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    
+
     const result = await pool.query(
       'SELECT id, assignment_title, description, drive_link, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
       [userId]
@@ -527,15 +527,15 @@ app.get('/api/submissions', requireAuth, async (req, res) => {
 app.get('/api/admin/students', requireAdmin, async (req, res) => {
   try {
     const { batch } = req.query;
-    
+
     let whereClause = '';
     let queryParams = [];
-    
+
     if (batch && batch !== 'all') {
       whereClause = 'WHERE u.batch = $1';
       queryParams.push(batch);
     }
-    
+
     const result = await pool.query(`
       SELECT 
         u.id,
@@ -582,31 +582,31 @@ app.get('/api/admin/students', requireAdmin, async (req, res) => {
 app.get('/api/admin/student/:id', requireAdmin, async (req, res) => {
   try {
     const studentId = req.params.id;
-    
+
     // Get student basic info
     const studentResult = await pool.query(
       'SELECT id, username, email, full_name, photo_url, batch, created_at FROM users WHERE id = $1',
       [studentId]
     );
-    
+
     if (studentResult.rows.length === 0) {
       return res.status(404).json({ error: 'Student not found' });
     }
-    
+
     const student = studentResult.rows[0];
-    
+
     // Get student's academic scores
     const scoresResult = await pool.query(
       'SELECT task_name, score, submitted_at FROM user_scores WHERE user_id = $1 ORDER BY submitted_at DESC',
       [studentId]
     );
-    
+
     // Get student's submissions
     const submissionsResult = await pool.query(
       'SELECT id, assignment_title, description, drive_link, file_names, submitted_at, status FROM submissions WHERE user_id = $1 ORDER BY submitted_at DESC',
       [studentId]
     );
-    
+
     res.json({
       student: {
         ...student,
@@ -615,99 +615,13 @@ app.get('/api/admin/student/:id', requireAdmin, async (req, res) => {
       scores: scoresResult.rows,
       submissions: submissionsResult.rows
     });
-    
+
   } catch (error) {
     console.error('Admin student details fetch error:', error);
     res.status(500).json({ error: 'Failed to load student details' });
   }
 });
 
-
-app.post('/api/submit-final-exam', requireAuth, async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const { answers } = req.body;
-
-    // Validate answers object
-    if (!answers || typeof answers !== 'object') {
-      return res.status(400).json({ error: 'No answers provided or invalid format' });
-    }
-
-    // Correct MCQ answers
-    const mcqAnswers = {
-      q1: '<nav>',
-      q2: 'border, padding, content',
-      q3: 'margin: 0 auto;',
-      q4: '12',
-      q5: "<script src='...'>",
-      q6: '.btn',
-      q7: 'POST',
-      q8: 'Strict equality (type+value)',
-      q9: 'submit',
-      q10: 'img-fluid',
-      q11: 'function myFunc() {}',
-      q12: 'color',
-      q13: 'placeholder',
-      q14: 'console.log()',
-      q15: '#main'
-    };
-
-    // Calculate MCQ score (2 marks each)
-    let mcqScore = 0;
-    for (let i = 1; i <= 15; i++) {
-      if (answers[`q${i}`] && answers[`q${i}`] === mcqAnswers[`q${i}`]) {
-        mcqScore += 2;
-      }
-    }
-
-    // Store the rest for teacher evaluation
-    const shortAnswers = [
-      answers.short1 || '',
-      answers.short2 || '',
-      answers.short3 || '',
-      answers.short4 || '',
-      answers.short5 || ''
-    ];
-
-    const codingAnswers = [
-      answers.coding1 || '',
-      answers.coding2 || '',
-      answers.coding3 || '',
-      answers.coding4 || '',
-      answers.coding5 || ''
-    ];
-
-    const miniProjectLink = answers.miniProjectLink || null;
-
-    // Insert into final_exam_submissions table
-    await pool.query(
-      `INSERT INTO final_exam_submissions 
-        (user_id, answers, mcq_score, short_score, coding_score, mini_project_score, total_score)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        userId,
-        JSON.stringify(answers),
-        mcqScore,
-        0, // short_score to be graded by teacher
-        0, // coding_score to be graded by teacher
-        0, // mini_project_score to be graded by teacher
-        mcqScore // total_score starts with MCQ score
-      ]
-    );
-
-    // Insert MCQ score in user_scores table
-    await pool.query(
-      'INSERT INTO user_scores (user_id, task_name, score) VALUES ($1, $2, $3)',
-      [userId, 'Final Exam MCQs', mcqScore]
-    );
-
-    res.json({ success: true, message: 'Exam submitted successfully', mcqScore });
-
-  } catch (error) {
-    console.error('Final Exam Submission error:', error.message);
-    res.status(500).json({ error: 'Failed to submit exam', details: error.message });
-  }
-});
 
 
 // Serve HTML files
@@ -746,6 +660,15 @@ app.get('/admin.html', (req, res) => {
 app.get('/student-details.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'student-details.html'));
 });
+
+
+// Exams routes (added)
+app.locals.pool = pool;
+const examRoutes = require('./routes/exam')(pool, requireAuth, requireAdmin);
+
+app.use('/api/exams', examRoutes);
+
+app.use('/exams', examRoutes);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);

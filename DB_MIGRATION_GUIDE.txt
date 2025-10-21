@@ -1,0 +1,41 @@
+
+DATABASE MIGRATION & DEPLOY GUIDE
+================================
+
+PREPARE
+1. Ensure you have the project and copied .env (with DATABASE_URL, SESSION_SECRET).
+2. Always backup your DB before making schema changes:
+   pg_dump $DATABASE_URL > backup_before_exam_$(date +%F).sql
+
+APPLY MIGRATIONS (Node runner)
+1. Install dependencies if not already:
+   npm install pg dotenv
+2. Run migration runner (reads migrations/*.sql):
+   node scripts/run_migrations.js
+
+OR APPLY WITH psql (Neon-compatible)
+1. If psql supports the URL directly (set PGSSLMODE=require):
+   export PGSSLMODE=require
+   psql "$DATABASE_URL" -f migrations/create_exams_tables.sql
+
+2. To verify tables exist:
+   psql "$DATABASE_URL" -c "\dt public.*exam*"
+
+SEED QUESTIONS
+1. After migrations, run the seed loader:
+   node scripts/load_exam.js
+
+VERIFY
+1. Start the server:
+   node server.js
+2. Log in to your app and open the exam page:
+   http://localhost:5000/public/exams/take_exam.html?examId=1
+3. For admin results, use the admin endpoints (requires admin login):
+   GET /exams/admin/1/results
+   POST /exams/admin/attempt/:attemptId/grade
+
+ROLLBACK / SAFETY
+- Migrations are additive (CREATE TABLE IF NOT EXISTS). They do not drop existing tables.
+- If you need to reverse, restore from the backup created earlier.
+
+If you'd like, I can also add a safe transactional migration that checks existence of 'users' table and only applies foreign keys if present.
