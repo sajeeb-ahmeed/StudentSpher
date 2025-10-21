@@ -66,3 +66,20 @@ INSERT INTO user_scores (user_id, task_name, score) VALUES
 (5, 'JavaScript Fundamentals', 93),
 (5, 'HTML & CSS Basics', 87),
 (5, 'React Components', 90);
+
+
+-- Table to store final exam answers
+CREATE TABLE final_exam_submissions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    answers JSONB NOT NULL,
+    mcq_score INTEGER DEFAULT 0,
+    short_score INTEGER DEFAULT 0,
+    coding_score INTEGER DEFAULT 0,
+    mini_project_score INTEGER DEFAULT 0,
+    total_score INTEGER DEFAULT 0,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for faster queries
+CREATE INDEX idx_final_exam_user_id ON final_exam_submissions(user_id);
