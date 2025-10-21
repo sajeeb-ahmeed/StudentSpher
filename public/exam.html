@@ -183,40 +183,42 @@
 
 <script>
 
- document.getElementById('examForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
+ const form = document.getElementById('examForm');
+    const resultDiv = document.getElementById('result');
 
-  const answers = {};
-  // MCQs
-  for (let i = 1; i <= 15; i++) {
-    answers['q'+i] = document.querySelector(`input[name="q${i}"]:checked`)?.value || '';
-  }
-  // Short Questions
-  for (let i = 1; i <= 5; i++) answers['short'+i] = document.getElementById('short'+i).value.trim();
-  // Coding Problems
-  for (let i = 1; i <= 5; i++) answers['coding'+i] = document.getElementById('coding'+i).value.trim();
-  // Mini Project
-  answers['miniProjectLink'] = document.getElementById('miniProjectLink').value.trim();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  try {
-    const res = await fetch('/api/submit-final-exam', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({answers}),
-      credentials: 'include'
+      const formData = new FormData(form);
+      const answers = {};
+      formData.forEach((value, key) => { answers[key] = value; });
+
+      try {
+        const response = await fetch('/api/submit-final-exam', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          resultDiv.innerText = `Exam submitted successfully! Your MCQ Score: ${data.mcqScore}`;
+          form.reset();
+        } else {
+          resultDiv.innerText = `Error: ${data.error || 'Submission failed'}`;
+        }
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerText = 'Error: Failed to submit exam. Please try again.';
+      }
     });
-    const data = await res.json();
-    if(data.success) alert(`Exam submitted successfully! MCQ Score: ${data.mcqScore}`);
-    else alert(data.error || 'Submission failed');
-  } catch(err) {
-    console.error(err);
-    alert('Failed to submit exam. Check console for details.');
-  }
-});
 </script>
 </body>
 
 </html>
+
 
 
 
