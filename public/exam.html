@@ -175,7 +175,7 @@
       <label for="miniProjectLink" class="form-label">Provide link to your mini project (GitHub/Drive):</label>
       <input type="url" id="miniProjectLink" class="form-control">
     </div>
-
+<div id="result"></div>
     <button type="submit" class="btn btn-primary">Submit Exam</button>
 
   </form>
@@ -196,7 +196,7 @@ const form = document.getElementById('examForm');
 
       // Show success message
       resultDiv.innerText = "Exam submitted successfully! ✅";
-
+alert("Exam submitted successfully! ✅");
       // Reset the form
       form.reset();
     });
@@ -204,6 +204,7 @@ const form = document.getElementById('examForm');
 </body>
 
 </html>
+
 
 
 
