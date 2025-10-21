@@ -124,52 +124,51 @@
             <input type="radio" name="q15" value="#main"> #main<br>
         </div>
 
-        <!-- Short Questions -->
-    <h4>Part 2: Short Questions (20 Marks)</h4>
-    <div class="mb-3">
-      <label for="short1" class="form-label">1. Explain the difference between inline and block elements.</label>
-      <textarea id="short1" class="form-control" rows="2"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="short2" class="form-label">2. What is the purpose of the CSS z-index property?</label>
-      <textarea id="short2" class="form-control" rows="2"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="short3" class="form-label">3. Describe the difference between var, let, and const in JS.</label>
-      <textarea id="short3" class="form-control" rows="2"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="short4" class="form-label">4. What are semantic HTML tags? Give examples.</label>
-      <textarea id="short4" class="form-control" rows="2"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="short5" class="form-label">5. Explain event bubbling in JavaScript.</label>
-      <textarea id="short5" class="form-control" rows="2"></textarea>
-    </div>
+    <!-- Part 2: Short Questions -->
+<h4>Part 2: Short Questions (20 Marks)</h4>
+<div class="mb-3">
+  <label>1. Explain the difference between inline and block elements.</label>
+  <textarea id="short1" class="form-control" rows="2" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>2. What is the purpose of the CSS z-index property?</label>
+  <textarea id="short2" class="form-control" rows="2" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>3. Describe the difference between var, let, and const in JS.</label>
+  <textarea id="short3" class="form-control" rows="2" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>4. What are semantic HTML tags? Give examples.</label>
+  <textarea id="short4" class="form-control" rows="2" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>5. Explain event bubbling in JavaScript.</label>
+  <textarea id="short5" class="form-control" rows="2" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
 
-    <!-- Coding Problems -->
-    <h4>Part 3: Coding Problems (30 Marks)</h4>
-    <div class="mb-3">
-      <label for="coding1" class="form-label">1. Write a function to reverse a string in JS.</label>
-      <textarea id="coding1" class="form-control" rows="3"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="coding2" class="form-label">2. Create a responsive navbar using Bootstrap 5.</label>
-      <textarea id="coding2" class="form-control" rows="3"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="coding3" class="form-label">3. Write JS code to validate a form input for email.</label>
-      <textarea id="coding3" class="form-control" rows="3"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="coding4" class="form-label">4. Make a table dynamically in JS from an array of objects.</label>
-      <textarea id="coding4" class="form-control" rows="3"></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="coding5" class="form-label">5. Write CSS to create a card with hover shadow effect.</label>
-      <textarea id="coding5" class="form-control" rows="3"></textarea>
-    </div>
-
+<!-- Part 3: Coding Problems -->
+<h4>Part 3: Coding Problems (30 Marks)</h4>
+<div class="mb-3">
+  <label>1. Write a function to reverse a string in JS.</label>
+  <textarea id="coding1" class="form-control" rows="3" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>2. Create a responsive navbar using Bootstrap 5.</label>
+  <textarea id="coding2" class="form-control" rows="3" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>3. Write JS code to validate a form input for email.</label>
+  <textarea id="coding3" class="form-control" rows="3" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>4. Make a table dynamically in JS from an array of objects.</label>
+  <textarea id="coding4" class="form-control" rows="3" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
+<div class="mb-3">
+  <label>5. Write CSS to create a card with hover shadow effect.</label>
+  <textarea id="coding5" class="form-control" rows="3" onpaste="return false" oncopy="return false" oncut="return false"></textarea>
+</div>
     <!-- Mini Project -->
     <h4>Part 4: Mini Project (20 Marks)</h4>
     <div class="mb-3">
@@ -183,6 +182,12 @@
 </div>
 
 <script>
+
+  const restrictedTextareas = document.querySelectorAll('#short1, #short2, #short3, #short4, #short5, #coding1, #coding2, #coding3, #coding4, #coding5');
+restrictedTextareas.forEach(t => {
+  t.addEventListener('contextmenu', e => e.preventDefault());
+});
+
 const examForm = document.getElementById('examForm');
 
 examForm.addEventListener('submit', async (e) => {
@@ -234,4 +239,5 @@ examForm.addEventListener('submit', async (e) => {
 </body>
 
 </html>
+
 
