@@ -626,19 +626,11 @@ app.get('/api/admin/student/:id', requireAdmin, async (req, res) => {
 app.post('/api/submit-final-exam', requireAuth, async (req, res) => {
   try {
     const userId = req.session.userId;
-    console.log('Submitting exam for user:', req.session.userId);
     const { answers } = req.body;
 
-    if (!answers) return res.status(400).json({ error: 'No answers provided' });
-
-    // Check if user already submitted
-    const check = await pool.query(
-      'SELECT id FROM final_exam_submissions WHERE user_id = $1',
-      [userId]
-    );
-
-    if (check.rows.length > 0) {
-      return res.status(400).json({ error: 'You have already submitted the exam.' });
+    // Validate answers object
+    if (!answers || typeof answers !== 'object') {
+      return res.status(400).json({ error: 'No answers provided or invalid format' });
     }
 
     // Correct MCQ answers
@@ -660,38 +652,59 @@ app.post('/api/submit-final-exam', requireAuth, async (req, res) => {
       q15: '#main'
     };
 
-    // Calculate MCQ score
+    // Calculate MCQ score (2 marks each)
     let mcqScore = 0;
     for (let i = 1; i <= 15; i++) {
       if (answers[`q${i}`] && answers[`q${i}`] === mcqAnswers[`q${i}`]) {
-        mcqScore += 2; // 2 marks per MCQ
+        mcqScore += 2;
       }
     }
 
-    // Short, coding, and mini project answers
-    const shortAnswers = [answers.short1, answers.short2, answers.short3, answers.short4, answers.short5];
-    const codingAnswers = [answers.coding1, answers.coding2, answers.coding3, answers.coding4, answers.coding5];
+    // Store the rest for teacher evaluation
+    const shortAnswers = [
+      answers.short1 || '',
+      answers.short2 || '',
+      answers.short3 || '',
+      answers.short4 || '',
+      answers.short5 || ''
+    ];
+
+    const codingAnswers = [
+      answers.coding1 || '',
+      answers.coding2 || '',
+      answers.coding3 || '',
+      answers.coding4 || '',
+      answers.coding5 || ''
+    ];
+
     const miniProjectLink = answers.miniProjectLink || null;
 
-    // Insert into final_exam_submissions
+    // Insert into final_exam_submissions table
     await pool.query(
       `INSERT INTO final_exam_submissions 
-       (user_id, answers, mcq_score, short_score, coding_score, mini_project_score, total_score)
+        (user_id, answers, mcq_score, short_score, coding_score, mini_project_score, total_score)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [userId, answers, mcqScore, 0, 0, 0, mcqScore]
+      [
+        userId,
+        JSON.stringify(answers),
+        mcqScore,
+        0, // short_score to be graded by teacher
+        0, // coding_score to be graded by teacher
+        0, // mini_project_score to be graded by teacher
+        mcqScore // total_score starts with MCQ score
+      ]
     );
 
-    // Insert MCQ score into user_scores
+    // Insert MCQ score in user_scores table
     await pool.query(
       'INSERT INTO user_scores (user_id, task_name, score) VALUES ($1, $2, $3)',
       [userId, 'Final Exam MCQs', mcqScore]
     );
 
-    res.json({ success: true, mcqScore });
+    res.json({ success: true, message: 'Exam submitted successfully', mcqScore });
 
   } catch (error) {
-   console.error('Final Exam Submission error:', error.message);
-    console.error(error.stack);
+    console.error('Final Exam Submission error:', error.message);
     res.status(500).json({ error: 'Failed to submit exam', details: error.message });
   }
 });
