@@ -689,8 +689,9 @@ app.post('/api/submit-final-exam', requireAuth, async (req, res) => {
     res.json({ success: true, mcqScore });
 
   } catch (error) {
-    console.error('Final Exam Submission error:', error);
-    res.status(500).json({ error: 'Failed to submit exam' });
+   console.error('Final Exam Submission error:', error.message);
+    console.error(error.stack);
+    res.status(500).json({ error: 'Failed to submit exam', details: error.message });
   }
 });
 
