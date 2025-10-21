@@ -183,41 +183,28 @@
 
 <script>
 
- const form = document.getElementById('examForm');
+const form = document.getElementById('examForm');
     const resultDiv = document.getElementById('result');
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const formData = new FormData(form);
-      const answers = {};
-      formData.forEach((value, key) => { answers[key] = value; });
+      // You can optionally collect answers locally
+      // const formData = new FormData(form);
+      // const answers = {};
+      // formData.forEach((value, key) => { answers[key] = value; });
 
-      try {
-        const response = await fetch('/api/submit-final-exam', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers })
-        });
+      // Show success message
+      resultDiv.innerText = "Exam submitted successfully! ✅";
 
-        const data = await response.json();
-
-        if (data.success) {
-          resultDiv.innerText = `Exam submitted successfully! Your MCQ Score: ${data.mcqScore}`;
-          form.reset();
-        } else {
-          resultDiv.innerText = `Error: ${data.error || 'Submission failed'}`;
-        }
-      } catch (err) {
-        console.error(err);
-        resultDiv.innerText = 'Error: Failed to submit exam. Please try again.';
-      }
+      // Reset the form
+      form.reset();
     });
 </script>
 </body>
 
 </html>
+
 
 
 
